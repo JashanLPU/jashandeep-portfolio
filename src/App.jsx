@@ -6,10 +6,10 @@ import {
 } from "lucide-react";
 
 // --- IMPORT YOUR PHOTO HERE ---
-// Ensure 'me.jpg' is inside the 'src' folder
+// Make sure 'me.jpg' is inside the 'src' folder!
 import me from './me.jpg';
 
-// --- UPDATED PROJECTS ---
+// --- YOUR LIVE PROJECTS ---
 const projects = [
   {
     title: "Reading Tracker System",
@@ -29,12 +29,14 @@ function App() {
   const [views, setViews] = useState(null);
 
   useEffect(() => {
-    // This connects to the Vercel backend.
-    // It works perfectly when deployed online.
+    // This connects to your Vercel Backend (api/views.js)
     fetch('/api/views', { method: 'POST' })
-      .then(res => res.json())
+      .then(async (res) => {
+        if (!res.ok) throw new Error("API Failed");
+        return res.json();
+      })
       .then(data => setViews(data.count))
-      .catch(err => console.log("Backend API not available locally"));
+      .catch(err => console.log("Backend not active locally (Expected on localhost)"));
   }, []);
 
   return (
