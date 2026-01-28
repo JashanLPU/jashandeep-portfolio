@@ -323,17 +323,7 @@ function App() {
           </ul>
         </section>
 
-        {/* 7. CONTENT CREATION */}
-        <section id="contact" className="section-card">
-          <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block', marginBottom: '20px' }}>
-            7. Content Creation
-          </h2>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-primary)', padding: '15px', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
-              <BookOpen size={24} className="text-blue-500"/> Tech Blog
-            </a>
-          </div>
-        </section>
+       
 
         {/* 8. RESUME DOWNLOAD */}
         <section style={{ textAlign: 'center', marginTop: '40px' }}>
