@@ -1,52 +1,83 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  Code2, Database, MapPin, GraduationCap, 
-  ExternalLink, ArrowRight, Download, FileText, 
-  Award, Layers, Trophy, Mail, Linkedin, Github 
+  Download, ExternalLink, Mail, Linkedin, Github, 
+  Database, Youtube, BookOpen, Sun, Moon 
 } from "lucide-react";
 
-// --- IMPORT YOUR PHOTO ---
 import me from './me.jpg';
 
-// --- DATA CONFIGURATION ---
+// --- DATA (Jashandeep's Details) ---
+const skillsData = [
+  { category: "Programming Languages", skills: "JavaScript (Advanced), C++, Python, Java" },
+  { category: "Frontend Development", skills: "React (Advanced), Tailwind CSS, Vite, HTML5" },
+  { category: "Backend Development", skills: "Node.js, Express.js, MongoDB (Mongoose)" },
+  { category: "Tools & DevOps", skills: "Git, GitHub, Vercel, Postman" },
+];
 
 const projects = [
   {
     title: "Vyom Clothing System",
     desc: "A modern e-commerce platform for clothing with cart, checkout, and payment integration.",
-    tags: ["React", "Vite", "Commerce"],
+    tech: "React, Vite, Commerce.js",
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/"
   },
   {
     title: "Reading Tracker System",
     desc: "A full-stack application to track reading habits, book progress, and personalized notes.",
-    tags: ["React", "Node.js", "MongoDB"],
+    tech: "React, Node.js, MongoDB",
     link: "https://reading-tracker-system1-vkbm.vercel.app/" 
   },
   {
     title: "Business Card Generator",
     desc: "A dynamic tool to create and customize digital business cards instantly.",
-    tags: ["React", "Vite", "Tailwind"],
+    tech: "React, Vite, Tailwind",
     link: "https://business-card-generator-mddw.vercel.app/" 
   }
 ];
 
+const experience = [
+  {
+    role: "Full Stack Developer (Freelance)",
+    company: "Self-Employed",
+    duration: "2024 - Present",
+    desc: "Developed and deployed multiple full-stack applications including e-commerce platforms and tracking systems."
+  },
+  {
+    role: "Web Development Intern",
+    company: "Local Tech Firm (Example)",
+    duration: "June 2023 - Aug 2023",
+    desc: "Assisted in building responsive UI components using React.js and optimized database queries."
+  }
+];
+
 const certifications = [
-  { name: "Full Stack Web Development", issuer: "Udemy", link: "#" },
-  { name: "React JS Certification", issuer: "HackerRank", link: "#" },
-  // Add more certifications here
+  "Full Stack Web Development - Udemy",
+  "React JS Certification - HackerRank",
+  "JavaScript Algorithms and Data Structures - freeCodeCamp"
 ];
 
 const achievements = [
-  { title: "Hackathon Winner", desc: "Secured 1st place in University Code-a-Thon 2024." },
-  { title: "5 Star Coder", desc: "Rated 5 stars in problem solving on HackerRank." },
-  { title: "Open Source", desc: "Contributed to multiple React libraries on GitHub." }
+  "Secured 1st place in University Code-a-Thon 2024.",
+  "Rated 5 stars in problem solving on HackerRank.",
+  "Contributed to open-source React libraries on GitHub."
 ];
 
 function App() {
   const [views, setViews] = useState(null);
+  const [theme, setTheme] = useState("dark");
 
+  // Toggle Theme Logic
+  const toggleTheme = () => {
+    setTheme((curr) => (curr === "dark" ? "light" : "dark"));
+  };
+
+  useEffect(() => {
+    // Apply theme class to body
+    document.body.className = theme === "dark" ? "" : "light-mode";
+  }, [theme]);
+
+  // DB View Counter
   useEffect(() => {
     fetch('/api/views', { method: 'POST' })
       .then(async (res) => {
@@ -60,182 +91,184 @@ function App() {
   return (
     <div className="app">
       
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="container nav-content">
-          <h2 style={{ fontWeight: 800 }}>Jashandeep<span className="gradient-text">.</span></h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', color: '#888' }}>
-            <div className="status-dot"></div>
-            <span>Available for hire</span>
+      {/* Navbar with Theme Toggle */}
+      <nav style={{ 
+        position: 'fixed', top: 0, width: '100%', 
+        background: 'var(--glass-bg)', backdropFilter: 'blur(10px)', 
+        borderBottom: '1px solid var(--glass-border)', zIndex: 50 
+      }}>
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '60px' }}>
+          <h2 style={{ fontWeight: 800, margin: 0 }}>Jashandeep<span className="gradient-text">.</span></h2>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            {/* Theme Button */}
+            <button 
+              onClick={toggleTheme} 
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+            >
+              {theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />}
+            </button>
+            
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Available for hire</div>
           </div>
         </div>
       </nav>
 
-      <div className="container">
+      <div className="container" style={{ paddingTop: '120px' }}>
         
-        {/* 1. ABOUT ME */}
-        <section className="hero" style={{ paddingBottom: '40px' }}>
+        {/* 1. WELCOME / ABOUT ME */}
+        <section id="about" style={{ marginBottom: '80px' }}>
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            style={{ display: 'flex', gap: '40px', alignItems: 'center', flexWrap: 'wrap' }}
           >
             <img src={me} alt="Jashandeep Singh" className="profile-img" />
-
-            <span className="badge">Full Stack Developer</span>
             
-            <h1 style={{ marginBottom: '20px' }}>
-              Building scalable <br />
-              <span className="gradient-text">Web Applications.</span>
-            </h1>
-            
-            <p style={{ maxWidth: '700px' }}>
-              I am a passionate software engineer based in <b style={{color:'white'}}>Punjab, India</b>. 
-              I specialize in the MERN stack (MongoDB, Express, React, Node.js) and building high-performance 
-              digital experiences for global clients.
-            </p>
-          </motion.div>
-        </section>
-
-        {/* 2. RESUME */}
-        <section style={{ marginBottom: '80px' }}>
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            whileInView={{ opacity: 1 }}
-            style={{ padding: '30px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}
-          >
-            <div>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>My Resume</h3>
-              <p style={{ color: '#888' }}>Download my CV to view my detailed work history and qualifications.</p>
-            </div>
-            <a href="/resume.pdf" download className="btn-primary" style={{ cursor: 'pointer' }}>
-              <Download size={18} /> Download CV
-            </a>
-          </motion.div>
-        </section>
-
-        {/* 3. SKILLS */}
-        <section style={{ marginBottom: '80px' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '30px', display:'flex', alignItems:'center', gap:'10px' }}>
-            <Layers size={28} className="text-purple-500"/> Technical Skills
-          </h2>
-          <div className="info-grid">
-            <motion.div className="card" whileHover={{ y: -5 }}>
-              <Code2 size={24} color="#3b82f6" />
-              <h3>Frontend</h3>
-              <p>React, Next.js, Tailwind, Vite, Redux</p>
-            </motion.div>
-            <motion.div className="card" whileHover={{ y: -5 }}>
-              <Database size={24} color="#22c55e" />
-              <h3>Backend</h3>
-              <p>Node.js, Express, MongoDB, Mongoose, REST API</p>
-            </motion.div>
-            <motion.div className="card" whileHover={{ y: -5 }}>
-              <GraduationCap size={24} color="#a855f7" />
-              <h3>Core</h3>
-              <p>Data Structures, Algorithms, JavaScript (ES6+), Git</p>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* 4. PROJECTS */}
-        <section id="projects" style={{ marginBottom: '80px' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '30px' }}>Featured Work</h2>
-          {projects.map((proj, i) => (
-            <motion.div 
-              key={i}
-              className="project-card"
-              whileHover={{ y: -5 }}
-            >
-              <div>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>{proj.title}</h3>
-                <p style={{ color: '#a3a3a3', marginBottom: '20px' }}>{proj.desc}</p>
-                <div style={{ display: 'flex', gap:'10px' }}>
-                  {proj.tags.map(tag => <span key={tag} className="tag">{tag}</span>)}
-                </div>
+            <div style={{ flex: 1 }}>
+              <h1 style={{ fontSize: '3rem', lineHeight: '1.2', marginBottom: '20px' }}>
+                Hi, I’m <span className="gradient-text">Jashandeep Singh</span>
+              </h1>
+              <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                A <strong>B.Tech Computer Science</strong> student at <strong>Lovely Professional University</strong>, 
+                specializing in <strong>Full-Stack Development</strong>. 
+                I focus on building scalable applications and have a solid foundation in both front-end and back-end development[cite: 3, 4].
+              </p>
+              
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Mail size={16}/> contact@jashandeep.dev</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Linkedin size={16}/> /in/jashandeep-singh</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Github size={16}/> github.com/JashanLPU</span>
               </div>
-              <a href={proj.link} target="_blank" rel="noopener noreferrer" style={{ color: 'white', background:'#ffffff10', padding:'12px', borderRadius:'50%' }}>
-                <ExternalLink size={20} />
-              </a>
-            </motion.div>
-          ))}
+            </div>
+          </motion.div>
         </section>
 
-        {/* 5. CERTIFICATIONS */}
-        <section style={{ marginBottom: '80px' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '30px', display:'flex', alignItems:'center', gap:'10px' }}>
-            <Award size={28} className="text-yellow-500"/> Certifications
-          </h2>
-          <div style={{ display: 'grid', gap: '15px' }}>
-            {certifications.map((cert, i) => (
-              <motion.a 
-                key={i}
-                href={cert.link}
-                target="_blank"
-                className="card"
-                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px' }}
-                whileHover={{ x: 5, borderColor: '#a855f7' }}
-              >
-                <div>
-                  <h4 style={{ color: 'white', fontSize: '1.1rem' }}>{cert.name}</h4>
-                  <span style={{ color: '#666', fontSize: '0.9rem' }}>Issued by {cert.issuer}</span>
-                </div>
-                <ExternalLink size={16} color="#666" />
-              </motion.a>
-            ))}
+        {/* 2. SKILLS (Table Format) */}
+        <section id="skills" style={{ marginBottom: '80px' }}>
+          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>2. Skills & Technologies</h2>
+          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <table style={{ margin: 0 }}>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Skills</th>
+                </tr>
+              </thead>
+              <tbody>
+                {skillsData.map((item, i) => (
+                  <tr key={i}>
+                    <td style={{ fontWeight: 'bold' }}>{item.category}</td>
+                    <td>{item.skills}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 
-        {/* 6. ACHIEVEMENTS (New) */}
-        <section style={{ marginBottom: '80px' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '30px', display:'flex', alignItems:'center', gap:'10px' }}>
-            <Trophy size={28} className="text-orange-500"/> Achievements
-          </h2>
-          <div className="info-grid">
-            {achievements.map((item, i) => (
-              <motion.div 
-                key={i} 
-                className="card" 
-                whileHover={{ y: -5 }}
-                style={{ borderColor: 'rgba(249, 115, 22, 0.2)' }}
-              >
-                <h3 style={{ color: '#fb923c' }}>{item.title}</h3>
-                <p>{item.desc}</p>
+        {/* 3. PROJECTS */}
+        <section id="projects" style={{ marginBottom: '80px' }}>
+          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>3. Projects</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+            {projects.map((proj, i) => (
+              <motion.div key={i} className="card" whileHover={{ y: -5 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <h3 style={{ margin: '0 0 10px 0' }}>{proj.title}</h3>
+                  <a href={proj.link} target="_blank" style={{ color: 'var(--accent)' }}><ExternalLink size={20}/></a>
+                </div>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '15px' }}>{proj.desc}</p>
+                <p style={{ fontSize: '0.85rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}><strong>Tech:</strong> {proj.tech}</p>
               </motion.div>
             ))}
           </div>
         </section>
 
-        {/* 7. CONTACT (New) */}
-        <section id="contact" style={{ marginBottom: '100px' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '30px' }}>Get In Touch</h2>
-          <div style={{ padding: '40px', background: 'linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 100%)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.8rem', marginBottom: '10px' }}>Let's Work Together</h3>
-            <p style={{ color: '#888', marginBottom: '30px', maxWidth:'500px', margin:'0 auto 30px' }}>
-              I am currently available for freelance projects and full-time opportunities. 
-              Let's build something amazing.
-            </p>
-            
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              <a href="mailto:contact@jashandeep.dev" className="btn-primary" style={{ minWidth: '160px', justifyContent:'center' }}>
-                <Mail size={18} /> Email Me
-              </a>
-              <a href="https://linkedin.com/in/your-profile" target="_blank" className="btn-secondary" style={{ minWidth: '160px', justifyContent:'center', display:'flex', alignItems:'center', gap:'8px' }}>
-                <Linkedin size={18} /> LinkedIn
-              </a>
-              <a href="https://github.com/JashanLPU" target="_blank" className="btn-secondary" style={{ minWidth: '160px', justifyContent:'center', display:'flex', alignItems:'center', gap:'8px' }}>
-                <Github size={18} /> GitHub
-              </a>
-            </div>
+        {/* 4. CERTIFICATIONS */}
+        <section id="certifications" style={{ marginBottom: '80px' }}>
+          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>4. Certifications & Courses</h2>
+          <div className="card">
+            <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
+              {certifications.map((cert, i) => (
+                <li key={i}>{cert}</li>
+              ))}
+            </ul>
           </div>
         </section>
 
+        {/* 5. EXPERIENCE (Table Format) */}
+        <section id="experience" style={{ marginBottom: '80px' }}>
+          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>5. Experience</h2>
+          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <table style={{ margin: 0 }}>
+              <thead>
+                <tr>
+                  <th>Role / Company</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {experience.map((exp, i) => (
+                  <tr key={i}>
+                    <td>
+                      <strong style={{ display: 'block' }}>{exp.role}</strong>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{exp.company} <br/> ({exp.duration})</span>
+                    </td>
+                    <td>{exp.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* 6. ACHIEVEMENTS */}
+        <section id="achievements" style={{ marginBottom: '80px' }}>
+          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>6. Achievements</h2>
+          <div className="card">
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {achievements.map((item, i) => (
+                <li key={i} style={{ 
+                  borderLeft: '4px solid #22c55e', 
+                  padding: '10px 15px', 
+                  margin: '10px 0',
+                  background: 'var(--glass-bg)'
+                }}>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* 7. BLOG & CONTENT */}
+        <section id="content" style={{ marginBottom: '80px' }}>
+          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>7. Blog & Content</h2>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <a href="#" className="card" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-primary)' }}>
+              <BookOpen size={24} className="text-blue-500"/> Tech Blog
+            </a>
+            <a href="#" className="card" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-primary)' }}>
+              <Youtube size={24} className="text-red-500"/> YouTube Channel
+            </a>
+          </div>
+        </section>
+
+        {/* 8. RESUME */}
+        <section id="resume" style={{ textAlign: 'center', marginBottom: '100px', borderTop: '1px solid var(--glass-border)', paddingTop: '40px' }}>
+          <h2 style={{ marginBottom: '20px' }}>8. Resume</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>Download my detailed CV in PDF format[cite: 29].</p>
+          <a href="/resume.pdf" download className="btn-primary">
+            <Download size={20} /> Download Resume
+          </a>
+        </section>
+
         {/* Footer */}
-        <footer className="footer">
-          <p>© 2026 Jashandeep Singh. All rights reserved.</p>
-          <div className="db-stats">
-            <Database size={14} color="#22c55e" />
-            <span>Profile Views: <strong style={{ color: 'white' }}>{views ?? "..."}</strong></span>
+        <footer style={{ textAlign: 'center', borderTop: '1px solid var(--glass-border)', padding: '30px 0', color: 'var(--text-secondary)' }}>
+          <p>© 2026 Jashandeep Singh | B.Tech CSE Portfolio</p>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--glass-bg)', padding: '5px 15px', borderRadius: '20px', marginTop: '10px' }}>
+             <Database size={12} color="#22c55e" />
+             <span style={{ fontSize: '0.8rem' }}>DB Views: <strong>{views ?? "..."}</strong></span>
           </div>
         </footer>
 
