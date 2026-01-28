@@ -1,38 +1,33 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
-  Database, Youtube, BookOpen, Sun, Moon 
+  Database, Youtube, BookOpen, Sun, Moon, Menu, X 
 } from "lucide-react";
 
-import me from './me.jpg';
+import me from './me.jpg'; 
 
-// --- DATA (Jashandeep's Details) ---
+// --- DATA ---
 const skillsData = [
-  { category: "Programming Languages", skills: "JavaScript (Advanced), C++, Python, Java" },
-  { category: "Frontend Development", skills: "React (Advanced), Tailwind CSS, Vite, HTML5" },
-  { category: "Backend Development", skills: "Node.js, Express.js, MongoDB (Mongoose)" },
-  { category: "Tools & DevOps", skills: "Git, GitHub, Vercel, Postman" },
+  { category: "Programming Languages", skills: "Python (Advanced), Java, C++, JavaScript (Advanced)" },
+  { category: "Frontend Development", skills: "HTML5 (Advanced), CSS3 (Advanced), Next.js (Intermediate)" },
+  { category: "Backend Development", skills: "Node.js (Advanced), Express.js (Intermediate)" },
+  { category: "Databases", skills: "MySQL (Intermediate), MongoDB" },
 ];
 
 const projects = [
   {
     title: "Vyom Clothing System",
-    desc: "A modern e-commerce platform for clothing with cart, checkout, and payment integration.",
+    sub: "E-Commerce Platform",
+    desc: "Re-developed a clothing platform. Managed cart services, guaranteed secure payments.",
     tech: "React, Vite, Commerce.js",
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/"
   },
   {
     title: "Reading Tracker System",
-    desc: "A full-stack application to track reading habits, book progress, and personalized notes.",
+    sub: "Personal Utility Tool",
+    desc: "Created a live view dashboard for reading habits. Contains all book reports.",
     tech: "React, Node.js, MongoDB",
-    link: "https://reading-tracker-system1-vkbm.vercel.app/" 
-  },
-  {
-    title: "Business Card Generator",
-    desc: "A dynamic tool to create and customize digital business cards instantly.",
-    tech: "React, Vite, Tailwind",
-    link: "https://business-card-generator-mddw.vercel.app/" 
+    link: "https://reading-tracker-system1-vkbm.vercel.app/"
   }
 ];
 
@@ -40,118 +35,136 @@ const experience = [
   {
     role: "Full Stack Developer (Freelance)",
     company: "Self-Employed",
-    duration: "2024 - Present",
-    desc: "Developed and deployed multiple full-stack applications including e-commerce platforms and tracking systems."
+    duration: "March 2024 - Present",
+    points: [
+      "Integrated secure payment gateways into e-commerce infrastructure.",
+      "Enhanced user interface of web applications using React and Tailwind."
+    ]
   },
   {
     role: "Web Development Intern",
-    company: "Local Tech Firm (Example)",
+    company: "Local Tech Firm",
     duration: "June 2023 - Aug 2023",
-    desc: "Assisted in building responsive UI components using React.js and optimized database queries."
+    points: [
+      "Re-developed legacy code for performance optimization.",
+      "Enabled users to interact with dynamic dashboards."
+    ]
   }
 ];
 
 const certifications = [
+  "Complete Interview Preparation - GeeksforGeeks",
   "Full Stack Web Development - Udemy",
-  "React JS Certification - HackerRank",
-  "JavaScript Algorithms and Data Structures - freeCodeCamp"
+  "React JS Certification - HackerRank"
 ];
 
 const achievements = [
-  "Secured 1st place in University Code-a-Thon 2024.",
-  "Rated 5 stars in problem solving on HackerRank.",
-  "Contributed to open-source React libraries on GitHub."
+  "One among Dean’s top 10% students at University.",
+  "Secured 3rd rank in HACKOVERFLOW 5.0 (NIT Durgapur).",
+  "Received 5-star rating in Problem Solving on HackerRank."
 ];
 
 function App() {
   const [views, setViews] = useState(null);
   const [theme, setTheme] = useState("dark");
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Toggle Theme Logic
-  const toggleTheme = () => {
-    setTheme((curr) => (curr === "dark" ? "light" : "dark"));
-  };
+  // Theme Toggle
+  const toggleTheme = () => setTheme(curr => curr === "dark" ? "light" : "dark");
 
   useEffect(() => {
-    // Apply theme class to body
     document.body.className = theme === "dark" ? "" : "light-mode";
   }, [theme]);
 
   // DB View Counter
   useEffect(() => {
     fetch('/api/views', { method: 'POST' })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("API Failed");
-        return res.json();
-      })
+      .then(res => res.ok ? res.json() : { count: "..." })
       .then(data => setViews(data.count))
-      .catch(err => console.log("Backend not active locally"));
+      .catch(() => console.log("Backend offline locally"));
   }, []);
+
+  // Scroll Handler
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setMenuOpen(false); // Close mobile menu on click
+    }
+  };
 
   return (
     <div className="app">
       
-      {/* Navbar with Theme Toggle */}
-      <nav style={{ 
-        position: 'fixed', top: 0, width: '100%', 
-        background: 'var(--glass-bg)', backdropFilter: 'blur(10px)', 
-        borderBottom: '1px solid var(--glass-border)', zIndex: 50 
-      }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '60px' }}>
-          <h2 style={{ fontWeight: 800, margin: 0 }}>Jashandeep<span className="gradient-text">.</span></h2>
+      {/* --- NAVBAR --- */}
+      <nav className="navbar">
+        <h2 style={{ fontWeight: 800, fontSize: '1.5rem', margin: 0 }}>
+          Jashandeep<span className="gradient-text">.</span>
+        </h2>
+
+        {/* Desktop Menu */}
+        <div className="nav-links">
+          <button onClick={() => scrollTo('about')} className="nav-btn">About</button>
+          <button onClick={() => scrollTo('skills')} className="nav-btn">Skills</button>
+          <button onClick={() => scrollTo('projects')} className="nav-btn">Projects</button>
+          <button onClick={() => scrollTo('experience')} className="nav-btn">Experience</button>
+          <button onClick={() => scrollTo('contact')} className="nav-btn">Contact</button>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            {/* Theme Button */}
-            <button 
-              onClick={toggleTheme} 
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
-            >
-              {theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />}
-            </button>
-            
-            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Available for hire</div>
-          </div>
+          <button onClick={toggleTheme} className="nav-btn">
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
         </div>
+
+        {/* Mobile Toggle */}
+        <button className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </nav>
 
-      <div className="container" style={{ paddingTop: '120px' }}>
-        
-        {/* 1. WELCOME / ABOUT ME */}
-        <section id="about" style={{ marginBottom: '80px' }}>
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            style={{ display: 'flex', gap: '40px', alignItems: 'center', flexWrap: 'wrap' }}
-          >
+      {/* Mobile Menu Dropdown */}
+      {menuOpen && (
+        <div className="mobile-dropdown">
+          <button onClick={() => scrollTo('about')} className="nav-btn">About</button>
+          <button onClick={() => scrollTo('skills')} className="nav-btn">Skills</button>
+          <button onClick={() => scrollTo('projects')} className="nav-btn">Projects</button>
+          <button onClick={() => scrollTo('experience')} className="nav-btn">Experience</button>
+          <button onClick={() => scrollTo('contact')} className="nav-btn">Contact</button>
+        </div>
+      )}
+
+      {/* --- MAIN CONTENT --- */}
+      <div className="container" style={{ paddingTop: '100px', paddingBottom: '50px' }}>
+
+        {/* 1. ABOUT ME */}
+        <section id="about" className="section-card" style={{ padding: '40px' }}>
+          <div style={{ display: 'flex', gap: '40px', alignItems: 'center', flexWrap: 'wrap' }}>
             <img src={me} alt="Jashandeep Singh" className="profile-img" />
-            
             <div style={{ flex: 1 }}>
-              <h1 style={{ fontSize: '3rem', lineHeight: '1.2', marginBottom: '20px' }}>
-                Hi, I’m <span className="gradient-text">Jashandeep Singh</span>
-              </h1>
-              <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                A <strong>B.Tech Computer Science</strong> student at <strong>Lovely Professional University</strong>, 
-                specializing in <strong>Full-Stack Development</strong>. 
-                I focus on building scalable applications and have a solid foundation in both front-end and back-end development[cite: 3, 4].
+              <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>Hi, I’m Jashandeep Singh</h1>
+              <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                A <strong>B.Tech Computer Science</strong> student at <strong>Lovely Professional University</strong>. 
+                I focus on building scalable applications and have a solid foundation in both front-end and back-end development.
               </p>
-              
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Mail size={16}/> contact@jashandeep.dev</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Linkedin size={16}/> /in/jashandeep-singh</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Github size={16}/> github.com/JashanLPU</span>
+              <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', fontSize: '0.95rem' }}>
+                <span>📞 +91 98765 43210</span>
+                <span>📧 contact@jashandeep.dev</span>
+                <span>🔗 linkedin.com/in/jashandeep</span>
+                <span>🐱 github.com/JashanLPU</span>
               </div>
             </div>
-          </motion.div>
+          </div>
         </section>
 
-        {/* 2. SKILLS (Table Format) */}
-        <section id="skills" style={{ marginBottom: '80px' }}>
-          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>2. Skills & Technologies</h2>
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <table style={{ margin: 0 }}>
+        {/* 2. SKILLS */}
+        <section id="skills" className="section-card">
+          <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block' }}>
+            2. Skills & Technologies
+          </h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
               <thead>
                 <tr>
-                  <th>Category</th>
+                  <th style={{ width: '30%' }}>Category</th>
                   <th>Skills</th>
                 </tr>
               </thead>
@@ -168,53 +181,64 @@ function App() {
         </section>
 
         {/* 3. PROJECTS */}
-        <section id="projects" style={{ marginBottom: '80px' }}>
-          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>3. Projects</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+        <section id="projects" className="section-card">
+          <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block' }}>
+            3. Projects
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
             {projects.map((proj, i) => (
-              <motion.div key={i} className="card" whileHover={{ y: -5 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <h3 style={{ margin: '0 0 10px 0' }}>{proj.title}</h3>
-                  <a href={proj.link} target="_blank" style={{ color: 'var(--accent)' }}><ExternalLink size={20}/></a>
+              <div key={i} style={{ background: 'var(--bg-color)', border: '1px solid var(--glass-border)', borderRadius: '8px', padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <h3 style={{ margin: '0 0 5px 0' }}>{proj.title}</h3>
+                  <a href={proj.link} target="_blank"><ExternalLink size={18} color="var(--accent)"/></a>
                 </div>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '15px' }}>{proj.desc}</p>
-                <p style={{ fontSize: '0.85rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}><strong>Tech:</strong> {proj.tech}</p>
-              </motion.div>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '15px' }}>{proj.sub}</p>
+                <p style={{ fontSize: '0.95rem', lineHeight: '1.5', marginBottom: '15px' }}>{proj.desc}</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 'bold' }}>Tech: {proj.tech}</p>
+              </div>
             ))}
           </div>
         </section>
 
         {/* 4. CERTIFICATIONS */}
-        <section id="certifications" style={{ marginBottom: '80px' }}>
-          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>4. Certifications & Courses</h2>
-          <div className="card">
-            <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-              {certifications.map((cert, i) => (
-                <li key={i}>{cert}</li>
-              ))}
-            </ul>
-          </div>
+        <section className="section-card">
+          <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block' }}>
+            4. Certifications & Courses
+          </h2>
+          <ul style={{ paddingLeft: '20px', lineHeight: '2' }}>
+            {certifications.map((cert, i) => (
+              <li key={i}>{cert}</li>
+            ))}
+          </ul>
         </section>
 
-        {/* 5. EXPERIENCE (Table Format) */}
-        <section id="experience" style={{ marginBottom: '80px' }}>
-          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>5. Experience</h2>
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <table style={{ margin: 0 }}>
+        {/* 5. EXPERIENCE */}
+        <section id="experience" className="section-card">
+          <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block' }}>
+            5. Experience
+          </h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
               <thead>
                 <tr>
-                  <th>Role / Company</th>
-                  <th>Description</th>
+                  <th style={{ width: '30%' }}>Role / Company</th>
+                  <th>Roles and Responsibilities</th>
                 </tr>
               </thead>
               <tbody>
                 {experience.map((exp, i) => (
                   <tr key={i}>
                     <td>
-                      <strong style={{ display: 'block' }}>{exp.role}</strong>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{exp.company} <br/> ({exp.duration})</span>
+                      <strong style={{ display: 'block', fontSize: '1.1rem' }}>{exp.company}</strong>
+                      <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{exp.role}</span>
+                      <br/>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>({exp.duration})</span>
                     </td>
-                    <td>{exp.desc}</td>
+                    <td>
+                      <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                        {exp.points.map((pt, p) => <li key={p} style={{ marginBottom: '5px' }}>{pt}</li>)}
+                      </ul>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -223,56 +247,59 @@ function App() {
         </section>
 
         {/* 6. ACHIEVEMENTS */}
-        <section id="achievements" style={{ marginBottom: '80px' }}>
-          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>6. Achievements</h2>
-          <div className="card">
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-              {achievements.map((item, i) => (
-                <li key={i} style={{ 
-                  borderLeft: '4px solid #22c55e', 
-                  padding: '10px 15px', 
-                  margin: '10px 0',
-                  background: 'var(--glass-bg)'
-                }}>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+        <section className="section-card">
+          <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block' }}>
+            6. Competitions & Achievements
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {achievements.map((item, i) => (
+              <li key={i} style={{ 
+                background: 'rgba(34, 197, 94, 0.1)', 
+                borderLeft: '5px solid #22c55e', 
+                padding: '15px', 
+                marginBottom: '10px',
+                borderRadius: '0 5px 5px 0'
+              }}>
+                {item}
+              </li>
+            ))}
+          </ul>
         </section>
 
-        {/* 7. BLOG & CONTENT */}
-        <section id="content" style={{ marginBottom: '80px' }}>
-          <h2 style={{ borderBottom: '2px solid var(--accent)', paddingBottom: '10px', marginBottom: '20px', display: 'inline-block' }}>7. Blog & Content</h2>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <a href="#" className="card" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-primary)' }}>
+        {/* 7. CONTACT / CONTENT */}
+        <section id="contact" className="section-card">
+          <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block' }}>
+            7. Content Creation
+          </h2>
+          <div style={{ display: 'flex', gap: '20px', marginTop: '20px', flexWrap: 'wrap' }}>
+            <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-primary)', padding: '15px', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
               <BookOpen size={24} className="text-blue-500"/> Tech Blog
             </a>
-            <a href="#" className="card" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-primary)' }}>
+            <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-primary)', padding: '15px', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
               <Youtube size={24} className="text-red-500"/> YouTube Channel
             </a>
           </div>
         </section>
 
         {/* 8. RESUME */}
-        <section id="resume" style={{ textAlign: 'center', marginBottom: '100px', borderTop: '1px solid var(--glass-border)', paddingTop: '40px' }}>
+        <section style={{ textAlign: 'center', marginTop: '40px' }}>
           <h2 style={{ marginBottom: '20px' }}>8. Resume</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>Download my detailed CV in PDF format[cite: 29].</p>
-          <a href="/resume.pdf" download className="btn-primary">
+          <a href="/resume.pdf" download style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '12px 30px', background: 'var(--text-primary)', color: 'var(--bg-color)', borderRadius: '5px', textDecoration: 'none', fontWeight: 'bold' }}>
             <Download size={20} /> Download Resume
           </a>
         </section>
 
-        {/* Footer */}
-        <footer style={{ textAlign: 'center', borderTop: '1px solid var(--glass-border)', padding: '30px 0', color: 'var(--text-secondary)' }}>
-          <p>© 2026 Jashandeep Singh | B.Tech CSE Portfolio</p>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--glass-bg)', padding: '5px 15px', borderRadius: '20px', marginTop: '10px' }}>
-             <Database size={12} color="#22c55e" />
-             <span style={{ fontSize: '0.8rem' }}>DB Views: <strong>{views ?? "..."}</strong></span>
-          </div>
-        </footer>
-
       </div>
+      
+      {/* FOOTER */}
+      <footer style={{ textAlign: 'center', background: 'var(--table-header)', padding: '20px', marginTop: '50px' }}>
+        <p>© 2026 Jashandeep Singh</p>
+        <div style={{ fontSize: '0.8rem', marginTop: '5px', opacity: 0.7 }}>
+          <Database size={10} style={{ display: 'inline', marginRight: '5px' }} /> 
+          Database Views: {views ?? "..."}
+        </div>
+      </footer>
+
     </div>
   );
 }
