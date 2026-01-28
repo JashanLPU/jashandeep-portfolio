@@ -6,7 +6,7 @@ import {
 
 import me from './me.jpg'; 
 
-[cite_start]// --- 1. SKILLS (Extracted from JASHANDEEP SINGH.pdf) [cite: 83] ---
+// --- 1. SKILLS ---
 const skillsData = [
   { category: "Languages", skills: "C, C++, Java, Python, PHP" },
   { category: "Frontend", skills: "HTML, CSS, React, Tailwind, Vite" },
@@ -15,7 +15,7 @@ const skillsData = [
   { category: "Soft Skills", skills: "Adaptability, Communication, Creativity" }
 ];
 
-[cite_start]// --- 2. PROJECTS (3 Live Projects + 2 Academic from CV) [cite: 86-95] ---
+// --- 2. PROJECTS ---
 const projects = [
   {
     title: "Vyom Clothing System",
@@ -43,29 +43,29 @@ const projects = [
   }
 ];
 
-[cite_start]// --- 3. CERTIFICATIONS (Extracted from uploaded PDFs) [cite: 37, 57, 70] ---
+// --- 3. CERTIFICATIONS ---
 const certifications = [
   { 
     name: "Interpersonal Communication for Engineering Leaders", 
     issuer: "Rice University (Coursera)",
     date: "Jan 28, 2026",
-    img: "/cert1.jpg" // Screenshot of Coursera WRLTNISUTPH9.pdf
+    img: "/cert1.jpg" 
   },
   { 
     name: "Master Generative AI & Generative AI Tools", 
     issuer: "Infosys Springboard",
     date: "Aug 11, 2025",
-    img: "/cert2.jpg" // Screenshot of 1-7b6e8b11...pdf
+    img: "/cert2.jpg" 
   },
   { 
     name: "Computational Theory: Language Principle & Finite Automata", 
     issuer: "Infosys Springboard",
     date: "Aug 05, 2025",
-    img: "/cert3.jpg" // Screenshot of 1-254c979c...pdf
+    img: "/cert3.jpg" 
   }
 ];
 
-[cite_start]// --- 4. EDUCATION (Extracted from CV) [cite: 109-120] ---
+// --- 4. EDUCATION ---
 const education = [
   {
     school: "Lovely Professional University",
@@ -87,7 +87,7 @@ const education = [
   }
 ];
 
-[cite_start]// --- 5. ACHIEVEMENTS & ACADEMIC WORK [cite: 86, 91, 103] ---
+// --- 5. ACHIEVEMENTS ---
 const achievements = [
   "Completed Tree-Plantation Initiative with Ek Noor Sewa Sevi Sanstha (Aug 2025).",
   "Developed 'Civic Pulse' - A Public Grievance Management System (PHP/MySQL).",
@@ -161,7 +161,7 @@ function App() {
       {/* --- MAIN CONTENT --- */}
       <div className="container" style={{ paddingTop: '100px', paddingBottom: '50px' }}>
 
-        [cite_start]{/* 1. ABOUT ME [cite: 85] */}
+        {/* 1. ABOUT ME */}
         <section id="about" className="section-card" style={{ padding: '40px' }}>
           <div style={{ display: 'flex', gap: '40px', alignItems: 'center', flexWrap: 'wrap' }}>
             <img src={me} alt="Jashandeep Singh" className="profile-img" />
@@ -189,7 +189,7 @@ function App() {
           </div>
         </section>
 
-        {/* 2. SKILLS (Table Format from CV) */}
+        {/* 2. SKILLS */}
         <section id="skills" className="section-card">
           <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block' }}>
             2. Skills & Technologies
@@ -239,7 +239,7 @@ function App() {
           </div>
         </section>
 
-        {/* 4. CERTIFICATIONS (PDF Data) */}
+        {/* 4. CERTIFICATIONS */}
         <section id="certifications" className="section-card">
           <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block', marginBottom: '20px' }}>
             4. Certifications
@@ -271,7 +271,7 @@ function App() {
           </div>
         </section>
 
-        {/* 5. EDUCATION (CV Data) */}
+        {/* 5. EDUCATION */}
         <section id="education" className="section-card">
           <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block', marginBottom: '20px' }}>
             5. Education
@@ -303,7 +303,7 @@ function App() {
           </div>
         </section>
 
-        {/* 6. ACHIEVEMENTS (CV Data) */}
+        {/* 6. ACHIEVEMENTS */}
         <section className="section-card">
           <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block', marginBottom: '20px' }}>
             6. Achievements & Activities
@@ -323,7 +323,7 @@ function App() {
           </ul>
         </section>
 
-        {/* 7. CONTENT / BLOG (Placeholder) */}
+        {/* 7. CONTENT CREATION */}
         <section id="contact" className="section-card">
           <h2 style={{ borderBottom: '3px solid var(--accent)', paddingBottom: '10px', display: 'inline-block', marginBottom: '20px' }}>
             7. Content Creation
