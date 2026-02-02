@@ -1,54 +1,80 @@
 :root {
-  --bg: #030014;
+  /* DARK MODE (Default) */
+  --bg: #050505;
   --glass: rgba(255, 255, 255, 0.05);
   --glass-hover: rgba(255, 255, 255, 0.1);
   --border: rgba(255, 255, 255, 0.1);
-  --primary: #a855f7;
-  --secondary: #ec4899;
+  --primary: #a855f7;  /* Purple */
+  --secondary: #ec4899; /* Pink */
   --text: #ffffff;
   --text-dim: #9ca3af;
+  --shadow-color: rgba(0,0,0,0.5);
+}
+
+/* LIGHT MODE */
+.light-mode {
+  --bg: #f3f4f6;
+  --glass: rgba(255, 255, 255, 0.8);
+  --glass-hover: #ffffff;
+  --border: rgba(0, 0, 0, 0.1);
+  --primary: #3b82f6; /* Blue */
+  --secondary: #8b5cf6; /* Indigo */
+  --text: #111827;
+  --text-dim: #4b5563;
+  --shadow-color: rgba(0,0,0,0.1);
 }
 
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   margin: 0;
-  overflow-x: hidden; /* Stops horizontal scrollbar */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
-/* --- ENDLESS SCROLL ANIMATION --- */
-.marquee-container {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-}
-
-.marquee-track {
+/* --- HORIZONTAL SCROLL SNAP (Manual Control) --- */
+.horizontal-scroll-container {
   display: flex;
-  gap: 2rem;
-  width: max-content;
-  animation: scroll 30s linear infinite;
+  overflow-x: auto;
+  gap: 40px;
+  padding: 40px 20px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll on mobile */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--primary) transparent;
 }
 
-.marquee-track:hover {
-  animation-play-state: paused; /* Stops moving when you hover to read */
+.horizontal-scroll-container::-webkit-scrollbar {
+  height: 8px;
 }
 
-@keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.horizontal-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.horizontal-scroll-container::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 20px;
 }
 
 /* --- UTILITIES --- */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
 .gradient-text {
-  background: linear-gradient(to right, var(--primary), var(--secondary));
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   -webkit-background-clip: text;
   color: transparent;
+  display: inline-block;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+/* Floating Animation Keyframes */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
