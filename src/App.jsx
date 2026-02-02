@@ -1,37 +1,45 @@
 import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion"; 
+import { motion, useScroll, useTransform } from "framer-motion";
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
-  Database, Sun, Moon, Menu, X, Phone, BookOpen, Award, Zap 
+  Database, Sun, Moon, Menu, X, Phone, Code2, Cpu, Globe, 
+  Award, Briefcase, GraduationCap 
 } from "lucide-react";
 
 import me from './me.jpg'; 
 
 // --- DATA ---
+const skillsData = [
+  { icon: <Code2 />, category: "Languages", skills: ["C", "C++", "Java", "Python", "PHP"] },
+  { icon: <Globe />, category: "Frontend", skills: ["React.js", "Tailwind CSS", "HTML5", "CSS3", "Vite"] },
+  { icon: <Cpu />, category: "Backend", skills: ["Node.js", "Express.js", "MongoDB", "SQL", "REST APIs"] },
+  { icon: <Database />, category: "Tools", skills: ["Git & GitHub", "VS Code", "Canva", "Postman"] }
+];
+
 const projects = [
   {
     title: "Vyom Clothing System",
-    sub: "Live E-Commerce",
-    desc: "A modern e-commerce platform with secure payments and cart logic.",
-    tech: "React, Vite, Commerce.js",
+    sub: "Full-Stack E-Commerce",
+    desc: "A complete shopping platform. Features include a dynamic product catalog, shopping cart logic, secure checkout integration, and an admin dashboard for inventory management.",
+    tech: ["React", "Vite", "Commerce.js", "Stripe"],
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
-    img: "https://placehold.co/600x400/111/FFF?text=Vyom+Project" 
+    img: "https://placehold.co/800x500/1a1a1a/FFF?text=Vyom+Shop+UI" 
   },
   {
     title: "Reading Tracker System",
-    sub: "Live Utility Tool",
-    desc: "Track reading habits, book progress, and personalized notes.",
-    tech: "React, Node.js, MongoDB",
+    sub: "Personal Productivity Tool",
+    desc: "An application designed to help users track their reading habits. Users can log books, write chapter summaries, rate titles, and view reading statistics over time.",
+    tech: ["React", "Node.js", "MongoDB", "Express"],
     link: "https://reading-tracker-system1-vkbm.vercel.app/",
-    img: "https://placehold.co/600x400/222/FFF?text=Reading+Tracker" 
+    img: "https://placehold.co/800x500/111/FFF?text=Reading+Dashboard" 
   },
   {
     title: "Business Card Generator",
-    sub: "Live Dynamic Tool",
-    desc: "Create and customize digital business cards instantly.",
-    tech: "React, Vite, Tailwind",
+    sub: "Dynamic Web Tool",
+    desc: "A creative tool allowing professionals to design digital business cards. Features real-time preview, QR code generation, and PDF download capabilities.",
+    tech: ["React", "Tailwind CSS", "QR Code API"],
     link: "https://business-card-generator-mddw.vercel.app/",
-    img: "https://placehold.co/600x400/333/FFF?text=Card+Generator" 
+    img: "https://placehold.co/800x500/222/FFF?text=Card+Creator" 
   }
 ];
 
@@ -41,52 +49,24 @@ const certifications = [
   { name: "Computational Theory", issuer: "Infosys", date: "Aug 2025", img: "/cert3.jpg" }
 ];
 
-const achievements = [
-  "Completed Tree-Plantation Initiative with Ek Noor Sewa Sevi Sanstha.",
-  "Developed 'Civic Pulse' - A Public Grievance Management System.",
-  "Built 'Iron Core' - An AI-integrated Gym Guidance Website."
+const education = [
+  { school: "Lovely Professional University", degree: "B.Tech CSE", year: "2023 - Present", score: "CGPA: 6.8 (Running)", desc: "Specializing in Full Stack Web Development." },
+  { school: "Dr. Asanand Arya Model School", degree: "Intermediate (12th)", year: "2022", score: "88.6%", desc: "Focus on Physics, Chemistry, and Mathematics." },
+  { school: "St. Joseph's Convent School", degree: "Matriculation (10th)", year: "2021", score: "83.8%", desc: "Foundation in Computer Applications." }
 ];
 
-// --- COMPONENTS ---
-
-// 3D Card Wrapper
-const Card3D = ({ children }) => {
-  return (
-    <motion.div
-      whileHover={{ y: -10, rotateX: 5, rotateY: 5 }}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ type: "spring", stiffness: 100 }}
-      style={{ perspective: 1000 }}
-    >
-      <div style={{ 
-        background: 'var(--glass)', 
-        backdropFilter: 'blur(10px)',
-        border: '1px solid var(--border)', 
-        borderRadius: '20px', 
-        overflow: 'hidden',
-        boxShadow: '0 10px 40px -10px var(--shadow-color)',
-        height: '100%'
-      }}>
-        {children}
-      </div>
-    </motion.div>
-  );
-};
-
 function App() {
+  const [views, setViews] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState("dark");
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const y = useTransform(scrollYProgress, [0, 1], [0, -50]); // Parallax effect
 
-  // Theme Toggle Logic
   useEffect(() => {
-    document.body.className = theme === "dark" ? "" : "light-mode";
-  }, [theme]);
-
-  const toggleTheme = () => setTheme(prev => prev === "dark" ? "light" : "dark");
+    fetch('/api/views', { method: 'POST' })
+      .then(res => res.ok ? res.json() : { count: "..." })
+      .then(data => setViews(data.count))
+      .catch(() => {});
+  }, []);
 
   const scrollTo = (id) => {
     const el = document.getElementById(id);
@@ -96,297 +76,240 @@ function App() {
 
   return (
     <div className="app">
-      
-      {/* Scroll Progress Bar */}
-      <motion.div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--primary)', scaleX, transformOrigin: "0%", zIndex: 2000 }} />
+      {/* Animated Background */}
+      <div className="bg-gradient-animate">
+        <div className="blob"></div>
+        <div className="blob"></div>
+        <div className="blob"></div>
+      </div>
 
-      {/* NAVBAR */}
-      <nav style={{ 
-        position: 'fixed', top: 0, width: '100%', height: '70px', 
-        background: 'rgba(0,0,0,0.1)', backdropFilter: 'blur(15px)', 
-        zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-        padding: '0 20px', borderBottom: '1px solid var(--border)' 
-      }}>
-        <h2 style={{ fontWeight: 800, fontSize: '1.5rem', margin: 0 }}>
-          Jashandeep<span className="gradient-text">.</span>
-        </h2>
-        
-        {/* Desktop Nav */}
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }} className="nav-desktop">
-          {['About', 'Resume', 'Skills', 'Projects', 'Certificates', 'Contact'].map(item => (
-            <motion.button 
-              key={item} 
-              onClick={() => scrollTo(item.toLowerCase())}
-              whileHover={{ scale: 1.1, color: 'var(--primary)' }}
-              style={{ background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer', fontSize: '1rem', fontWeight: 500 }}
-            >
-              {item}
-            </motion.button>
+      {/* Navbar */}
+      <motion.nav 
+        initial={{ y: -100 }} animate={{ y: 0 }}
+        style={{ position: 'fixed', width: '100%', height: '80px', zIndex: 100, backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px' }}
+      >
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Jashan<span className="gradient-text">.</span></h2>
+        <div className="desktop-nav" style={{ display: 'flex', gap: '30px' }}>
+          {['About', 'Projects', 'Skills', 'Certificates', 'Contact'].map(item => (
+            <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1rem', cursor: 'pointer', opacity: 0.8 }}>{item}</button>
           ))}
-          {/* THEME BUTTON */}
-          <motion.button 
-            onClick={toggleTheme}
-            whileHover={{ rotate: 180 }}
-            style={{ background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer', marginLeft: '10px' }}
-          >
-            {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
-          </motion.button>
         </div>
-
-        {/* Mobile Toggle */}
-        <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', color: 'var(--text)' }} className="nav-mobile">
-           {menuOpen ? <X /> : <Menu />}
+        <button onClick={() => setMenuOpen(!menuOpen)} className="mobile-nav" style={{ background: 'none', border: 'none', color: '#fff' }}>
+           {menuOpen ? <X/> : <Menu/>}
         </button>
-      </nav>
+      </motion.nav>
 
-      {/* MAIN CONTAINER */}
-      <div className="container" style={{ paddingTop: '120px', paddingBottom: '50px' }}>
-
-        {/* 1. HERO SECTION (CENTERED & FLOATING) */}
-        <section id="about" style={{ marginBottom: '120px', textAlign: 'center' }}>
-          
+      {/* 1. HERO SECTION (Full Screen Height) */}
+      <section id="about" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative', paddingTop: '80px' }}>
+        <div className="container">
           <motion.div 
-            className="floating"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", duration: 1.5 }}
-            style={{ marginBottom: '30px', display: 'inline-block' }}
+            initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 100 }}
+            style={{ marginBottom: '40px' }}
           >
-            <img 
-              src={me} 
-              alt="Profile" 
-              style={{ 
-                width: '220px', height: '220px', borderRadius: '50%', 
-                border: '4px solid var(--primary)', objectFit: 'cover',
-                boxShadow: '0 0 50px var(--glass-hover)'
-              }} 
-            />
+            <img src={me} alt="Profile" style={{ width: '250px', height: '250px', borderRadius: '50%', objectFit: 'cover', border: '4px solid #a855f7', padding: '5px', background: 'rgba(255,255,255,0.1)' }} />
           </motion.div>
           
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            style={{ fontSize: '3.5rem', margin: '0 0 20px 0', lineHeight: 1.1 }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            style={{ fontSize: '4rem', fontWeight: 800, margin: '0 0 20px 0', lineHeight: 1.1 }}
           >
-            Hi, I'm <span className="gradient-text">Jashandeep Singh</span>
+            I build <span className="gradient-text">Digital Experiences</span>
           </motion.h1>
-
+          
           <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            style={{ fontSize: '1.2rem', color: 'var(--text-dim)', maxWidth: '600px', margin: '0 auto 40px', lineHeight: 1.6 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+            style={{ fontSize: '1.4rem', color: '#9ca3af', maxWidth: '700px', margin: '0 auto 40px' }}
           >
-            A <strong>Full-Stack Developer</strong> specializing in building high-performance, scalable web applications with the <strong>MERN Stack</strong>.
+            Hi, I'm <strong>Jashandeep Singh</strong>. A Full-Stack Developer transforming ideas into scalable, high-performance web applications.
           </motion.p>
-        </section>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+            <a href="/resume.pdf" download style={{ textDecoration: 'none' }}>
+              <button style={{ padding: '18px 40px', fontSize: '1.1rem', fontWeight: 'bold', background: '#fff', color: '#000', border: 'none', borderRadius: '50px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+                <Download size={20} /> Download CV
+              </button>
+            </a>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* 2. RESUME BUTTON */}
-        <motion.section 
-          id="resume" 
-          style={{ textAlign: 'center', marginBottom: '120px' }}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-        >
-          <a href="/resume.pdf" download style={{ textDecoration: 'none' }}>
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 30px var(--primary)" }}
-              whileTap={{ scale: 0.95 }}
-              style={{ 
-                padding: '16px 45px', fontSize: '1.1rem', fontWeight: 'bold', 
-                background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '50px', 
-                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '10px' 
-              }}
-            >
-              <Download size={20}/> Download Resume
-            </motion.button>
-          </a>
-        </motion.section>
-
-        {/* 3. SKILLS */}
-        <section id="skills" style={{ marginBottom: '120px' }}>
-          <motion.h2 
-            initial={{ x: -50, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            style={{ fontSize: '2.5rem', borderLeft: '6px solid var(--primary)', paddingLeft: '20px', marginBottom: '40px' }}
-          >
-            3. Skills
+      {/* 2. EDUCATION TIMELINE (Increases Length) */}
+      <section style={{ padding: '100px 0', position: 'relative' }}>
+        <div className="container">
+          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px' }}>
+            My Journey
           </motion.h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
-            {["C, C++, Java", "Python, PHP", "React, Tailwind", "Node.js, Express", "MongoDB, SQL", "Git, GitHub"].map((skill, i) => (
-              <motion.div
+
+          <div style={{ position: 'relative', maxWidth: '800px', margin: '0 auto' }}>
+            {/* The Line */}
+            <div className="timeline-line"></div>
+            
+            {education.map((edu, i) => (
+              <motion.div 
                 key={i}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ scale: 1.05, background: 'var(--glass-hover)', borderColor: 'var(--primary)' }}
+                initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ margin: "-100px" }}
                 style={{ 
-                  padding: '25px', background: 'var(--glass)', 
-                  borderRadius: '12px', textAlign: 'center', 
-                  border: '1px solid var(--border)', cursor: 'default' 
+                  display: 'flex', 
+                  justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-end',
+                  marginBottom: '60px',
+                  position: 'relative'
                 }}
               >
-                <Zap size={24} color="var(--secondary)" style={{ marginBottom: '10px' }}/>
-                <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{skill}</div>
+                {/* The Dot */}
+                <div style={{ position: 'absolute', left: '50%', top: '0', width: '16px', height: '16px', background: '#a855f7', borderRadius: '50%', transform: 'translate(-50%, 0)', border: '4px solid #000', zIndex: 10 }}></div>
+
+                {/* The Card */}
+                <div className="glass-panel" style={{ width: '45%', padding: '30px' }}>
+                  <span style={{ color: '#a855f7', fontWeight: 'bold', fontSize: '0.9rem' }}>{edu.year}</span>
+                  <h3 style={{ margin: '10px 0', fontSize: '1.5rem' }}>{edu.school}</h3>
+                  <h4 style={{ margin: '0 0 10px 0', color: '#ccc', fontWeight: 'normal' }}>{edu.degree}</h4>
+                  <p style={{ color: '#888', fontSize: '0.9rem', lineHeight: 1.6 }}>{edu.desc}</p>
+                  <div style={{ marginTop: '15px', fontWeight: 'bold', color: '#fff' }}>{edu.score}</div>
+                </div>
               </motion.div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* 4. PROJECTS */}
-        <section id="projects" style={{ marginBottom: '120px' }}>
-          <motion.h2 
-            initial={{ x: -50, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            style={{ fontSize: '2.5rem', borderLeft: '6px solid var(--primary)', paddingLeft: '20px', marginBottom: '40px' }}
-          >
-            4. Projects
-          </motion.h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' }}>
-            {projects.map((proj, i) => (
-              <Card3D key={i}>
-                <div style={{ height: '220px', background: '#000', overflow: 'hidden' }}>
-                  <motion.img 
-                    src={proj.img} alt={proj.title} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.5 }}
-                  />
+      {/* 3. SKILLS (Grid of Cards) */}
+      <section id="skills" style={{ padding: '100px 0' }}>
+        <div className="container">
+          <motion.h2 style={{ fontSize: '3rem', marginBottom: '60px' }}>Technical Arsenal</motion.h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
+            {skillsData.map((cat, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="glass-panel"
+                style={{ padding: '30px', borderTop: '4px solid #a855f7' }}
+              >
+                <div style={{ color: '#a855f7', marginBottom: '20px' }}>{cat.icon}</div>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>{cat.category}</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                  {cat.skills.map(skill => (
+                    <span key={skill} style={{ padding: '8px 15px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', fontSize: '0.9rem' }}>
+                      {skill}
+                    </span>
+                  ))}
                 </div>
-                <div style={{ padding: '30px' }}>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <h3 style={{ margin: '0 0 10px 0', fontSize: '1.5rem' }}>{proj.title}</h3>
-                      <a href={proj.link} target="_blank" style={{ color: 'var(--primary)' }}>
-                        <ExternalLink size={24}/>
-                      </a>
-                   </div>
-                   <p style={{ color: 'var(--text-dim)', marginBottom: '20px', lineHeight: 1.6 }}>{proj.desc}</p>
-                   <span style={{ fontSize: '0.85rem', padding: '6px 12px', background: 'rgba(168, 85, 247, 0.15)', color: 'var(--primary)', borderRadius: '6px', fontWeight: 'bold' }}>
-                     {proj.tech}
-                   </span>
-                </div>
-              </Card3D>
+              </motion.div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* 5. CERTIFICATES (MANUAL SCROLL & HUGE) */}
-        <section id="certificates" style={{ marginBottom: '120px' }}>
-          <motion.h2 
-            initial={{ x: -50, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            style={{ fontSize: '2.5rem', borderLeft: '6px solid var(--primary)', paddingLeft: '20px', marginBottom: '40px' }}
-          >
-            5. Certificates
-          </motion.h2>
-          
-          {/* Horizontal Scroll Container */}
-          <div className="horizontal-scroll-container">
+      {/* 4. PROJECTS (Zig-Zag Layout) */}
+      <section id="projects" style={{ padding: '100px 0' }}>
+        <div className="container">
+          <motion.h2 style={{ fontSize: '3rem', marginBottom: '80px' }}>Featured Works</motion.h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '100px' }}>
+            {projects.map((proj, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ margin: "-100px" }}
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', // Zig Zag
+                  gap: '60px',
+                  alignItems: 'center'
+                }}
+              >
+                {/* Image Side */}
+                <div style={{ flex: 1 }}>
+                  <div className="glass-panel" style={{ padding: '10px', overflow: 'hidden' }}>
+                    <img 
+                      src={proj.img} 
+                      alt={proj.title} 
+                      style={{ width: '100%', height: 'auto', borderRadius: '14px', transition: 'transform 0.5s' }} 
+                      onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                    />
+                  </div>
+                </div>
+                
+                {/* Text Side */}
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '2.5rem', marginBottom: '15px' }}>{proj.title}</h3>
+                  <h4 style={{ color: '#a855f7', marginBottom: '20px', fontSize: '1.2rem' }}>{proj.sub}</h4>
+                  <p style={{ color: '#ccc', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '30px' }}>
+                    {proj.desc}
+                  </p>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '30px' }}>
+                    {proj.tech.map(t => (
+                       <span key={t} style={{ color: '#fff', fontWeight: 'bold', fontSize: '0.9rem', border: '1px solid #333', padding: '5px 15px', borderRadius: '20px' }}>{t}</span>
+                    ))}
+                  </div>
+                  <a href={proj.link} target="_blank" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '10px', color: '#a855f7', fontWeight: 'bold' }}>
+                    View Live Project <ExternalLink size={20} />
+                  </a>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. CERTIFICATES (Horizontal Scroll) */}
+      <section id="certificates" style={{ padding: '100px 0' }}>
+        <div className="container">
+          <h2 style={{ fontSize: '3rem', marginBottom: '60px' }}>Certifications</h2>
+          <div style={{ 
+             display: 'flex', overflowX: 'auto', gap: '40px', paddingBottom: '40px', 
+             scrollbarWidth: 'thin', scrollbarColor: '#a855f7 transparent'
+          }}>
             {certifications.map((cert, i) => (
               <motion.div 
-                key={i} 
-                className="certificate-card"
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.2 }}
-                style={{ 
-                  minWidth: '600px', // HUGE Width
-                  background: 'var(--glass)', 
-                  borderRadius: '24px', 
-                  overflow: 'hidden', 
-                  border: '1px solid var(--border)',
-                  scrollSnapAlign: 'center',
-                  boxShadow: '0 20px 50px -20px var(--shadow-color)'
-                }}
-              >
-                 <div style={{ height: '350px', background: '#111', overflow: 'hidden' }}>
-                    <img src={cert.img} alt={cert.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                 </div>
-                 <div style={{ padding: '30px' }}>
-                   <h3 style={{ margin: '0 0 10px 0', fontSize: '1.8rem' }}>{cert.name}</h3>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', color: 'var(--text-dim)' }}>
-                     <span><strong>Issuer:</strong> {cert.issuer}</span>
-                     <span>{cert.date}</span>
-                   </div>
-                 </div>
-              </motion.div>
-            ))}
-          </div>
-          <p style={{ textAlign: 'center', marginTop: '10px', color: 'var(--text-dim)', fontSize: '0.9rem' }}>
-            (Scroll sideways to view more)
-          </p>
-        </section>
-
-        {/* 6. ACHIEVEMENTS */}
-        <section id="achievements" style={{ marginBottom: '120px' }}>
-          <motion.h2 
-            initial={{ x: -50, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            style={{ fontSize: '2.5rem', borderLeft: '6px solid var(--primary)', paddingLeft: '20px', marginBottom: '40px' }}
-          >
-            6. Achievements
-          </motion.h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {achievements.map((item, i) => (
-              <motion.div 
                 key={i}
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ x: 10, background: 'var(--glass-hover)' }}
-                style={{ 
-                  padding: '25px', background: 'var(--glass)', 
-                  borderLeft: '5px solid #22c55e', borderRadius: '0 12px 12px 0',
-                  display: 'flex', alignItems: 'center', gap: '20px',
-                  boxShadow: '0 4px 20px var(--shadow-color)'
-                }}
+                className="glass-panel"
+                style={{ minWidth: '600px', flexShrink: 0, padding: '0', overflow: 'hidden' }}
               >
-                <Award size={32} color="#22c55e" />
-                <span style={{ fontSize: '1.2rem', fontWeight: '500' }}>{item}</span>
+                <img src={cert.img} style={{ width: '100%', height: '350px', objectFit: 'contain', background: '#000' }} />
+                <div style={{ padding: '30px' }}>
+                  <h3 style={{ margin: '0 0 10px 0', fontSize: '1.8rem' }}>{cert.name}</h3>
+                  <p style={{ color: '#888', fontSize: '1.2rem' }}>{cert.issuer} • {cert.date}</p>
+                </div>
               </motion.div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* 7. CONTACT */}
-        <section id="contact" style={{ marginBottom: '50px' }}>
-          <h2 style={{ fontSize: '2.5rem', borderLeft: '6px solid var(--primary)', paddingLeft: '20px', marginBottom: '40px' }}>7. Contact Me</h2>
-          <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
-            {[
-              { icon: <Mail size={30}/>, text: "Email Me", link: "mailto:jashandeep20445@gmail.com" },
-              { icon: <Linkedin size={30}/>, text: "LinkedIn", link: "https://linkedin.com/in/jashan23" },
-              { icon: <Github size={30}/>, text: "GitHub", link: "https://github.com/JashanLPU" }
-            ].map((contact, i) => (
-              <motion.a 
-                key={i} 
-                href={contact.link} 
-                target="_blank"
-                whileHover={{ y: -10, borderColor: 'var(--primary)' }}
-                style={{ 
-                  flex: 1, minWidth: '250px', padding: '40px', 
-                  background: 'var(--glass)', borderRadius: '20px', 
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', 
-                  textDecoration: 'none', color: 'var(--text)', border: '1px solid var(--border)',
-                  boxShadow: '0 10px 30px var(--shadow-color)'
-                }}
-              >
-                <div style={{ padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}>
-                  {contact.icon}
-                </div>
-                <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{contact.text}</span>
-              </motion.a>
-            ))}
+      {/* 6. CONTACT */}
+      <section id="contact" style={{ padding: '100px 0 150px 0' }}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <div className="glass-panel" style={{ padding: '80px', maxWidth: '800px', margin: '0 auto' }}>
+            <h2 style={{ fontSize: '3rem', marginBottom: '20px' }}>Ready to Collaborate?</h2>
+            <p style={{ fontSize: '1.2rem', color: '#ccc', marginBottom: '50px' }}>
+              I am currently looking for Internship/Job opportunities. Drop me a message!
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              <a href="mailto:jashandeep20445@gmail.com" style={{ textDecoration: 'none' }}>
+                <button style={{ padding: '15px 35px', borderRadius: '30px', background: '#a855f7', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center' }}>
+                  <Mail /> Email Me
+                </button>
+              </a>
+              <a href="https://linkedin.com/in/jashan23" target="_blank" style={{ textDecoration: 'none' }}>
+                 <button style={{ padding: '15px 35px', borderRadius: '30px', background: 'transparent', color: '#fff', border: '1px solid #fff', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center' }}>
+                  <Linkedin /> LinkedIn
+                </button>
+              </a>
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-      </div>
-      
       {/* Footer */}
-      <footer style={{ textAlign: 'center', padding: '50px', background: 'var(--glass)', borderTop: '1px solid var(--border)' }}>
-        <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>© 2026 Jashandeep Singh</p>
+      <footer style={{ padding: '40px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <p style={{ opacity: 0.6 }}>© 2026 Jashandeep Singh • {views ?? "..."} Profile Views</p>
       </footer>
-
+      
     </div>
   );
 }
