@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { 
-  motion, useScroll, useSpring, useTransform, useVelocity 
+  motion, useScroll, useSpring, useTransform, useVelocity, AnimatePresence 
 } from "framer-motion";
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
@@ -10,7 +10,19 @@ import {
 
 import me from './me.jpg'; 
 
-// --- 1. OPTIMIZED CUSTOM CURSOR (No React State Lag) ---
+// --- ANIMATION WRAPPER ---
+const FadeIn = ({ children, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 0.8, delay, ease: "easeOut" }}
+  >
+    {children}
+  </motion.div>
+);
+
+// --- OPTIMIZED CUSTOM CURSOR ---
 const CustomCursor = () => {
   const cursorRef = useRef(null);
   
@@ -19,7 +31,6 @@ const CustomCursor = () => {
     if (!cursor) return;
 
     const moveCursor = (e) => {
-      // Direct DOM update = 60fps performance
       cursor.style.left = `${e.clientX}px`;
       cursor.style.top = `${e.clientY}px`;
     };
@@ -46,8 +57,6 @@ const CustomCursor = () => {
 };
 
 // --- DATA ---
-
-// *** THIS WAS MISSING BEFORE - ADDED BACK NOW ***
 const skillsData = [
   { icon: <Terminal size={24} />, category: "Core Languages", skills: ["C", "C++", "Java", "Python", "JavaScript"] },
   { icon: <Layers size={24} />, category: "Frontend", skills: ["React.js", "Tailwind CSS", "Framer Motion", "Vite"] },
@@ -97,8 +106,7 @@ const education = [
   { school: "St. Joseph's Convent School", degree: "Matriculation (10th)", year: "2021", score: "83.8%" }
 ];
 
-// --- COMPONENTS ---
-
+// --- SCROLL VELOCITY COMPONENT ---
 const ScrollVelocity = ({ children }) => {
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
@@ -181,7 +189,7 @@ function App() {
         )}
       </motion.nav>
 
-      {/* 1. HERO SECTION (Extended) */}
+      {/* 1. HERO SECTION */}
       <section id="about" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingTop: '80px' }}>
         <div className="container">
           <motion.div 
@@ -196,45 +204,48 @@ function App() {
             I am a <span className="gradient-text">{text}</span>
           </h1>
           
-          <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 50px' }}>
-            Transforming ideas into scalable, high-performance web applications.
-          </p>
+          <FadeIn delay={0.5}>
+            <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 50px' }}>
+              Transforming ideas into scalable, high-performance web applications.
+            </p>
+          </FadeIn>
           
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            <a href="/resume.pdf" download style={{ textDecoration: 'none' }}>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                style={{ padding: '18px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-              >
-                <Download size={20} /> Download CV
-              </motion.button>
-            </a>
-          </div>
+          <FadeIn delay={0.8}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+              <a href="/resume.pdf" download style={{ textDecoration: 'none' }}>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  style={{ padding: '18px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+                >
+                  <Download size={20} /> Download CV
+                </motion.button>
+              </a>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* 2. SKILLS */}
       <section id="skills" style={{ padding: '150px 0' }}>
         <div className="container">
-          <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>Technical Arsenal</h2>
+          <FadeIn>
+            <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>Technical Arsenal</h2>
+          </FadeIn>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
             {skillsData.map((cat, i) => (
-              <motion.div 
-                key={i}
-                className="glass-panel"
-                style={{ padding: '40px' }}
-                whileHover={{ y: -10 }}
-              >
-                <div style={{ color: 'var(--accent)', marginBottom: '20px' }}>{cat.icon}</div>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>{cat.category}</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                  {cat.skills.map(skill => (
-                    <span key={skill} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '8px', fontSize: '0.9rem' }}>
-                      {skill}
-                    </span>
-                  ))}
+              <FadeIn key={i} delay={i * 0.1}>
+                <div className="glass-panel" style={{ padding: '40px' }}>
+                  <div style={{ color: 'var(--accent)', marginBottom: '20px' }}>{cat.icon}</div>
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>{cat.category}</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {cat.skills.map(skill => (
+                      <span key={skill} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '8px', fontSize: '0.9rem' }}>
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </motion.div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -243,7 +254,9 @@ function App() {
       {/* 3. WORKFLOW */}
       <section style={{ padding: '150px 0' }}>
         <div className="container">
-          <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>My Workflow</h2>
+          <FadeIn>
+            <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>My Workflow</h2>
+          </FadeIn>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', justifyContent: 'center' }}>
             {[
               { title: "Discover", desc: "Understanding the problem statement and requirements." },
@@ -251,16 +264,13 @@ function App() {
               { title: "Develop", desc: "Clean coding with modern best practices." },
               { title: "Deploy", desc: "CI/CD integration and cloud hosting." }
             ].map((step, i) => (
-              <motion.div 
-                key={i} 
-                className="glass-panel" 
-                style={{ width: '250px', padding: '30px', textAlign: 'center' }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <div style={{ width: '50px', height: '50px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontWeight: 'bold' }}>{i+1}</div>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '10px' }}>{step.title}</h3>
-                <p style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
-              </motion.div>
+              <FadeIn key={i} delay={i * 0.15}>
+                <div className="glass-panel" style={{ width: '250px', padding: '30px', textAlign: 'center' }}>
+                  <div style={{ width: '50px', height: '50px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontWeight: 'bold' }}>{i+1}</div>
+                  <h3 style={{ fontSize: '1.2rem', marginBottom: '10px' }}>{step.title}</h3>
+                  <p style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
+                </div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -270,41 +280,43 @@ function App() {
       <ScrollVelocity>
         <section id="projects" style={{ padding: '150px 0' }}>
           <div className="container">
-            <h2 style={{ fontSize: '3rem', marginBottom: '100px', textAlign: 'center' }}>Featured Works</h2>
+            <FadeIn>
+              <h2 style={{ fontSize: '3rem', marginBottom: '100px', textAlign: 'center' }}>Featured Works</h2>
+            </FadeIn>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '150px' }}>
               {projects.map((proj, i) => (
-                <motion.div 
-                  key={i}
-                  className="project-layout"
-                  initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ margin: "-100px" }}
-                  style={{ display: 'flex', flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', gap: '60px', alignItems: 'center' }}
-                >
-                  <div style={{ flex: 1, width: '100%' }}>
-                    <div className={`glass-panel ${proj.themeClass}`} style={{ overflow: 'hidden', padding: '0', height: '400px' }}>
-                       <img src={proj.img} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} />
+                <FadeIn key={i}>
+                  <div 
+                    className="project-layout"
+                    style={{ display: 'flex', flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', gap: '60px', alignItems: 'center' }}
+                  >
+                    <div style={{ flex: 1, width: '100%' }}>
+                      <div className={`glass-panel ${proj.themeClass}`} style={{ overflow: 'hidden', padding: '0', height: '400px' }}>
+                         <img src={proj.img} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} />
+                      </div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontSize: '2.8rem', marginBottom: '15px' }}>{proj.title}</h3>
+                      <h4 style={{ color: 'var(--accent)', fontSize: '1.3rem', marginBottom: '25px', fontWeight: '600' }}>{proj.sub}</h4>
+                      <p style={{ color: 'var(--text-secondary)', marginBottom: '35px', lineHeight: 1.7, fontSize: '1.15rem' }}>{proj.desc}</p>
+                      
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '45px' }}>
+                        {proj.tech.map(t => (
+                          <span key={t} style={{ border: '1px solid var(--glass-border)', padding: '8px 18px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 600 }}>{t}</span>
+                        ))}
+                      </div>
+                      
+                      <a href={proj.link} target="_blank" style={{ textDecoration: 'none' }}>
+                        <motion.button 
+                          whileHover={{ scale: 1.05 }}
+                          style={{ background: 'var(--text-primary)', color: 'var(--bg-color)', padding: '16px 35px', borderRadius: '50px', border: 'none', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+                        >
+                          Visit Live Site <ExternalLink size={20} />
+                        </motion.button>
+                      </a>
                     </div>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: '2.8rem', marginBottom: '15px' }}>{proj.title}</h3>
-                    <h4 style={{ color: 'var(--accent)', fontSize: '1.3rem', marginBottom: '25px', fontWeight: '600' }}>{proj.sub}</h4>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '35px', lineHeight: 1.7, fontSize: '1.15rem' }}>{proj.desc}</p>
-                    
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '45px' }}>
-                      {proj.tech.map(t => (
-                        <span key={t} style={{ border: '1px solid var(--glass-border)', padding: '8px 18px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 600 }}>{t}</span>
-                      ))}
-                    </div>
-                    
-                    <a href={proj.link} target="_blank" style={{ textDecoration: 'none' }}>
-                      <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        style={{ background: 'var(--text-primary)', color: 'var(--bg-color)', padding: '16px 35px', borderRadius: '50px', border: 'none', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
-                      >
-                        Visit Live Site <ExternalLink size={20} />
-                      </motion.button>
-                    </a>
-                  </div>
-                </motion.div>
+                </FadeIn>
               ))}
             </div>
           </div>
@@ -313,7 +325,9 @@ function App() {
 
       {/* 5. CERTIFICATES */}
       <section id="education" style={{ padding: '100px 0' }}>
-         <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>Certifications</h2>
+         <FadeIn>
+           <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>Certifications</h2>
+         </FadeIn>
          <div className="marquee-container">
             <div className="marquee-track">
                {[...certifications, ...certifications, ...certifications, ...certifications].map((cert, i) => (
@@ -334,22 +348,24 @@ function App() {
       {/* 6. TIMELINE */}
       <section id="timeline" style={{ padding: '150px 0' }}>
         <div className="container" style={{ maxWidth: '900px', position: 'relative' }}>
-          <h2 style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px' }}>Academic Journey</h2>
+          <FadeIn>
+            <h2 style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px' }}>Academic Journey</h2>
+          </FadeIn>
           <div className="timeline-line"></div>
           {education.map((edu, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ margin: "-50px" }}
-              style={{ display: 'flex', justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-end', marginBottom: '60px', position: 'relative' }}
-            >
-              <div className="timeline-dot" style={{ position: 'absolute', left: '50%', top: '0', transform: 'translate(-50%, 0)', zIndex: 10, width:'20px', height:'20px', background:'var(--accent)', borderRadius:'50%', border:'4px solid var(--bg-color)' }}></div>
-              <div className="glass-panel" style={{ width: '45%', padding: '35px' }}>
-                <span style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: '0.9rem' }}>{edu.year}</span>
-                <h3 style={{ fontSize: '1.5rem', margin: '10px 0' }}>{edu.school}</h3>
-                <h4 style={{ opacity: 0.8, fontSize: '1.1rem', fontWeight: 'normal' }}>{edu.degree}</h4>
-                <div style={{ marginTop: '15px', fontWeight: '800', fontSize: '1.1rem' }}>{edu.score}</div>
+            <FadeIn key={i}>
+              <div 
+                style={{ display: 'flex', justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-end', marginBottom: '60px', position: 'relative' }}
+              >
+                <div className="timeline-dot" style={{ position: 'absolute', left: '50%', top: '0', transform: 'translate(-50%, 0)', zIndex: 10, width:'20px', height:'20px', background:'var(--accent)', borderRadius:'50%', border:'4px solid var(--bg-color)' }}></div>
+                <div className="glass-panel" style={{ width: '45%', padding: '35px' }}>
+                  <span style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: '0.9rem' }}>{edu.year}</span>
+                  <h3 style={{ fontSize: '1.5rem', margin: '10px 0' }}>{edu.school}</h3>
+                  <h4 style={{ opacity: 0.8, fontSize: '1.1rem', fontWeight: 'normal' }}>{edu.degree}</h4>
+                  <div style={{ marginTop: '15px', fontWeight: '800', fontSize: '1.1rem' }}>{edu.score}</div>
+                </div>
               </div>
-            </motion.div>
+            </FadeIn>
           ))}
         </div>
       </section>
@@ -357,24 +373,32 @@ function App() {
       {/* 7. CONTACT */}
       <section id="contact" style={{ padding: '150px 0' }}>
         <div className="container" style={{ textAlign: 'center', maxWidth: '800px' }}>
-          <div className="glass-panel" style={{ padding: '80px 40px' }}>
-            <h2 style={{ fontSize: '3.5rem', marginBottom: '20px' }}>Let's Build Something.</h2>
-            <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', marginBottom: '50px' }}>
-              I am currently available for full-time roles and freelance projects.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              <a href="mailto:jashandeep20445@gmail.com" style={{ textDecoration: 'none' }}>
-                <motion.button whileHover={{ scale: 1.05 }} style={{ padding: '20px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}>
-                  <Mail size={22} /> Email Me
-                </motion.button>
-              </a>
-              <a href="https://linkedin.com/in/jashan23" target="_blank" style={{ textDecoration: 'none' }}>
-                 <motion.button whileHover={{ scale: 1.05 }} style={{ padding: '20px 45px', borderRadius: '50px', background: 'transparent', color: 'var(--text-primary)', border: '2px solid var(--text-primary)', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}>
-                  <Linkedin size={22} /> LinkedIn
-                </motion.button>
-              </a>
+          <FadeIn>
+            <div className="glass-panel" style={{ padding: '80px 40px' }}>
+              <h2 style={{ fontSize: '3.5rem', marginBottom: '20px' }}>Let's Build Something.</h2>
+              <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', marginBottom: '50px' }}>
+                I am currently available for full-time roles and freelance projects.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                <a href="mailto:jashandeep20445@gmail.com" style={{ textDecoration: 'none' }}>
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    style={{ padding: '20px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}
+                  >
+                    <Mail size={22} /> Email Me
+                  </motion.button>
+                </a>
+                <a href="https://linkedin.com/in/jashan23" target="_blank" style={{ textDecoration: 'none' }}>
+                   <motion.button 
+                     whileHover={{ scale: 1.05 }}
+                     style={{ padding: '20px 45px', borderRadius: '50px', background: 'transparent', color: 'var(--text-primary)', border: '2px solid var(--text-primary)', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}
+                   >
+                    <Linkedin size={22} /> LinkedIn
+                  </motion.button>
+                </a>
+              </div>
             </div>
-          </div>
+          </FadeIn>
         </div>
       </section>
       

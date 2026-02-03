@@ -1,25 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
 
 :root {
+  /* DARK MODE */
   --bg-color: #030005;
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
   --accent: #a855f7;
   --glass-panel: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --cursor-size: 20px;
+  --cursor-color: #ffffff; /* White cursor on dark bg */
 }
 
 .light-mode {
-  --bg-color: #f8fafc;
+  /* LIGHT MODE */
+  --bg-color: #ffffff;
   --text-primary: #020617;
   --text-secondary: #475569;
   --accent: #2563eb;
-  --glass-panel: rgba(255, 255, 255, 0.8);
+  --glass-panel: rgba(0, 0, 0, 0.03); /* Subtle dark tint for contrast */
   --glass-border: rgba(0, 0, 0, 0.1);
+  --cursor-color: #000000; /* Black cursor on white bg */
 }
 
-* { box-sizing: border-box; cursor: none; } /* Hide default cursor */
+* { box-sizing: border-box; cursor: none; }
 
 @media (hover: none) { * { cursor: auto !important; } }
 
@@ -30,21 +33,27 @@ body {
   margin: 0;
   width: 100%;
   overflow-x: hidden;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  /* Smooth Transition for Theme Switch */
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
 }
 
-/* --- OPTIMIZED CURSOR (Hardware Accelerated) --- */
+/* --- FIXED CURSOR VISIBILITY --- */
 .custom-cursor {
   position: fixed; top: 0; left: 0; width: 20px; height: 20px;
-  border: 1px solid var(--text-primary); border-radius: 50%;
+  border: 1.5px solid var(--cursor-color); /* Uses variable for visibility */
+  border-radius: 50%;
   pointer-events: none; z-index: 9999;
-  transform: translate3d(-50%, -50%, 0); /* GPU acceleration */
-  transition: width 0.2s, height 0.2s, background-color 0.2s; 
-  mix-blend-mode: difference;
+  transform: translate3d(-50%, -50%, 0);
+  transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
+  /* Removed mix-blend-mode to guarantee visibility */
 }
-.custom-cursor.hovered { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-color: transparent; }
+.custom-cursor.hovered { 
+  width: 50px; height: 50px; 
+  background: rgba(168, 85, 247, 0.1); /* Subtle accent tint */
+  border-color: var(--accent);
+}
 
-/* --- NOISE OVERLAY (Optimized opacity) --- */
+/* --- NOISE (Subtle Texture) --- */
 .noise-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none; z-index: 9000; opacity: 0.03;
@@ -56,12 +65,15 @@ body {
   background: var(--glass-panel);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
-  /* Reduced blur for performance */
-  backdrop-filter: blur(12px); 
+  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease, box-shadow 0.3s ease;
 }
-.glass-panel:hover { border-color: var(--accent); }
+.glass-panel:hover { 
+  border-color: var(--accent); 
+  transform: translateY(-10px); /* Higher lift */
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+}
 
 /* --- UTILITIES --- */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
@@ -72,12 +84,13 @@ body {
 
 /* --- THEMES --- */
 .vyom-theme { background: #000 !important; color: #fff !important; border: 1px solid #333 !important; }
-.light-mode .vyom-theme { background: #fff !important; color: #000 !important; border: 1px solid #ddd !important; }
+.light-mode .vyom-theme { border: 4px solid #000 !important; } /* High contrast border in light mode */
+
 .hp-theme { font-family: 'Playfair Display', serif; background: linear-gradient(145deg, #2c241b, #15110e) !important; color: #d6cfc7 !important; border: 1px solid #8a6a4b !important; }
 
 /* --- MARQUEE --- */
 .marquee-container { overflow: hidden; width: 100%; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
-.marquee-track { display: flex; gap: 40px; width: max-content; animation: scroll 80s linear infinite; } /* Slower */
+.marquee-track { display: flex; gap: 40px; width: max-content; animation: scroll 80s linear infinite; }
 @keyframes scroll { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-50%,0,0); } }
 
 /* --- TIMELINE --- */
