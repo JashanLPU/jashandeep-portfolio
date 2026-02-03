@@ -19,7 +19,7 @@ const projects = [
     tech: ["React.js", "Commerce.js", "Stripe", "Minimal UI"],
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
     // Fashion Image (Black & White aesthetic)
-    img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop", 
+    img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop", 
     themeClass: "vyom-theme"
   },
   {
@@ -28,8 +28,8 @@ const projects = [
     desc: "A magical library management system. Track your reading progress, write chapter summaries, and rate your collection in an interface inspired by ancient archives.",
     tech: ["MERN Stack", "MongoDB", "JWT Auth", "Book API"],
     link: "https://reading-tracker-system1-vkbm.vercel.app/",
-    // NEW: Reliable "Dark Academia" Library Image
-    img: "https://images.unsplash.com/photo-1507842217343-583bb7260b66?q=80&w=1000&auto=format&fit=crop",
+    // NEW: "Old Library" / Brownish Book Theme
+    img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop",
     themeClass: "hp-theme"
   },
   {
@@ -38,8 +38,8 @@ const projects = [
     desc: "Create vibrant, professional digital identities in seconds. Features real-time customization, QR code integration, and instant PDF export for the modern professional.",
     tech: ["React + Vite", "Tailwind", "QR Code", "Canvas API"],
     link: "https://business-card-generator-mddw.vercel.app/",
-    // NEW: Clean Professional Business Cards Image
-    img: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=1000&auto=format&fit=crop",
+    // NEW: Digital Design / Colorful Workspace Theme
+    img: "https://images.unsplash.com/photo-1626785774573-4b7993143a2d?q=80&w=1000&auto=format&fit=crop",
     themeClass: "" 
   }
 ];
