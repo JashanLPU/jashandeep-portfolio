@@ -1,83 +1,99 @@
 :root {
-  --bg: #030014;
-  --primary: #a855f7;
-  --secondary: #ec4899;
-  --accent: #3b82f6;
-  --glass: rgba(255, 255, 255, 0.03);
+  /* DARK MODE (Default) */
+  --bg-color: #030014;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --accent: #a855f7; /* Purple */
+  --accent-glow: rgba(168, 85, 247, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --text: #ffffff;
-  --text-dim: #9ca3af;
+  --blob-1: #4c1d95;
+  --blob-2: #be185d;
+  --blob-3: #1d4ed8;
+}
+
+/* LIGHT MODE OVERRIDES */
+.light-mode {
+  --bg-color: #f8fafc;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent: #2563eb; /* Royal Blue */
+  --accent-glow: rgba(37, 99, 235, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --blob-1: #bfdbfe; /* Pastel Blue */
+  --blob-2: #e9d5ff; /* Pastel Purple */
+  --blob-3: #bae6fd; /* Light Cyan */
 }
 
 body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
   margin: 0;
+  transition: background-color 0.5s ease, color 0.5s ease;
   overflow-x: hidden;
 }
 
-/* --- ANIMATED BACKGROUND --- */
-.bg-gradient-animate {
+/* --- ANIMATED BACKGROUND LAYER --- */
+.background-canvas {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
   z-index: -1;
-  background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #000000 100%);
   overflow: hidden;
+  background: var(--bg-color);
+  transition: background 0.5s ease;
 }
 
 .blob {
   position: absolute;
-  width: 500px; height: 500px;
-  background: linear-gradient(180deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
-  filter: blur(80px);
   border-radius: 50%;
-  animation: floatBlob 20s infinite alternate;
+  filter: blur(80px);
+  opacity: 0.6;
+  animation: float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.5s ease;
 }
-.blob:nth-child(2) { top: 20%; right: -10%; animation-delay: -5s; background: rgba(59, 130, 246, 0.15); }
-.blob:nth-child(3) { bottom: -10%; left: 20%; animation-delay: -10s; background: rgba(168, 85, 247, 0.15); }
 
-@keyframes floatBlob {
+.blob-1 { width: 600px; height: 600px; background: var(--blob-1); top: -10%; left: -10%; }
+.blob-2 { width: 500px; height: 500px; background: var(--blob-2); top: 40%; right: -10%; animation-delay: -5s; }
+.blob-3 { width: 400px; height: 400px; background: var(--blob-3); bottom: -10%; left: 20%; animation-delay: -10s; }
+
+@keyframes float {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(50px, -50px) scale(1.1); }
+  100% { transform: translate(30px, -30px) scale(1.1); }
 }
 
-/* --- TIMELINE LINE --- */
+/* --- UTILITIES --- */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent), #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+}
+
 .timeline-line {
   position: absolute;
-  left: 50%; top: 0; bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+  left: 50%; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--accent), transparent);
   transform: translateX(-50%);
 }
 
-/* --- SCROLLBAR --- */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 5px; }
-::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
 
-/* --- UTILS --- */
-.gradient-text {
-  background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
-  -webkit-background-clip: text;
-  color: transparent;
-  background-size: 200% auto;
-  animation: shine 5s linear infinite;
-}
-
-@keyframes shine {
-  to { background-position: 200% center; }
-}
-
-.glass-panel {
-  background: var(--glass);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-}
-
-/* Mobile Fixes */
 @media (max-width: 768px) {
   .timeline-line { left: 20px; }
 }
