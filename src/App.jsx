@@ -5,7 +5,7 @@ import {
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
   Database, Sun, Moon, Menu, X, Code2, Cpu, Globe, 
-  Zap, Layers, Terminal, ArrowRight 
+  Zap, Layers, Terminal 
 } from "lucide-react";
 
 import me from './me.jpg'; 
@@ -18,17 +18,17 @@ const projects = [
     desc: "A premium black & white themed e-commerce experience. Features a minimalist UI, dynamic product cart, secure Stripe checkout, and a seamless shopping journey designed for modern brands.",
     tech: ["React.js", "Commerce.js", "Stripe", "Minimal UI"],
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
-    // Fashion Image
-    img: "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1000&auto=format&fit=crop", 
+    // Fashion Image (Black & White aesthetic)
+    img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop", 
     themeClass: "vyom-theme"
   },
   {
     title: "Story Verse",
     sub: "The Reader's Companion",
-    desc: "A magical library management system. Track your reading progress, write chapter summaries, and rate your collection in an interface inspired by ancient wizarding archives.",
+    desc: "A magical library management system. Track your reading progress, write chapter summaries, and rate your collection in an interface inspired by ancient archives.",
     tech: ["MERN Stack", "MongoDB", "JWT Auth", "Book API"],
     link: "https://reading-tracker-system1-vkbm.vercel.app/",
-    // Ancient Library Image
+    // NEW: Reliable "Dark Academia" Library Image
     img: "https://images.unsplash.com/photo-1507842217343-583bb7260b66?q=80&w=1000&auto=format&fit=crop",
     themeClass: "hp-theme"
   },
@@ -38,8 +38,8 @@ const projects = [
     desc: "Create vibrant, professional digital identities in seconds. Features real-time customization, QR code integration, and instant PDF export for the modern professional.",
     tech: ["React + Vite", "Tailwind", "QR Code", "Canvas API"],
     link: "https://business-card-generator-mddw.vercel.app/",
-    // NEW: Professional Business Cards Image
-    img: "https://images.unsplash.com/photo-1592914610354-fd354ea45e48?q=80&w=1000&auto=format&fit=crop",
+    // NEW: Clean Professional Business Cards Image
+    img: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=1000&auto=format&fit=crop",
     themeClass: "" 
   }
 ];
