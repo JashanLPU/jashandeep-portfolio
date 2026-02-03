@@ -1,99 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap');
+
 :root {
-  /* DARK MODE (Default) */
-  --bg-color: #030014;
+  /* --- DARK MODE (Nebula) --- */
+  --bg-color: #050210;
   --text-primary: #ffffff;
-  --text-secondary: #9ca3af;
-  --accent: #a855f7; /* Purple */
-  --accent-glow: rgba(168, 85, 247, 0.4);
-  --glass-bg: rgba(255, 255, 255, 0.03);
+  --text-secondary: #cbd5e1;
+  --accent: #a855f7; /* Electric Purple */
+  --accent-secondary: #06b6d4; /* Cyan */
+  --glass-bg: rgba(20, 20, 35, 0.4);
   --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.1);
   --blob-1: #4c1d95;
   --blob-2: #be185d;
-  --blob-3: #1d4ed8;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --card-bg: rgba(30, 30, 40, 0.6);
 }
 
-/* LIGHT MODE OVERRIDES */
+/* --- LIGHT MODE (Frost) --- */
 .light-mode {
-  --bg-color: #f8fafc;
+  --bg-color: #f0f4f8;
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --accent: #2563eb; /* Royal Blue */
-  --accent-glow: rgba(37, 99, 235, 0.3);
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --blob-1: #bfdbfe; /* Pastel Blue */
-  --blob-2: #e9d5ff; /* Pastel Purple */
-  --blob-3: #bae6fd; /* Light Cyan */
+  --accent-secondary: #7c3aed; /* Violet */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --glass-highlight: rgba(255, 255, 255, 0.9);
+  --blob-1: #bfdbfe;
+  --blob-2: #ddd6fe;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --card-bg: rgba(255, 255, 255, 0.85);
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Outfit', sans-serif; /* Modern Tech Font */
   margin: 0;
-  transition: background-color 0.5s ease, color 0.5s ease;
   overflow-x: hidden;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
-/* --- ANIMATED BACKGROUND LAYER --- */
+/* --- ADVANCED BACKGROUND --- */
 .background-canvas {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
   z-index: -1;
   overflow: hidden;
-  background: var(--bg-color);
-  transition: background 0.5s ease;
 }
 
 .blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.6;
-  animation: float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
-  transition: background 0.5s ease;
+  filter: blur(90px);
+  opacity: 0.5;
+  animation: float 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
-
-.blob-1 { width: 600px; height: 600px; background: var(--blob-1); top: -10%; left: -10%; }
-.blob-2 { width: 500px; height: 500px; background: var(--blob-2); top: 40%; right: -10%; animation-delay: -5s; }
-.blob-3 { width: 400px; height: 400px; background: var(--blob-3); bottom: -10%; left: 20%; animation-delay: -10s; }
+.blob-1 { width: 800px; height: 800px; background: var(--blob-1); top: -20%; left: -20%; }
+.blob-2 { width: 600px; height: 600px; background: var(--blob-2); bottom: -10%; right: -10%; animation-delay: -5s; }
 
 @keyframes float {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(30px, -30px) scale(1.1); }
+  100% { transform: translate(50px, -50px) scale(1.1); }
 }
 
-/* --- UTILITIES --- */
+/* --- ULTRA GLASSMORPHISM --- */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
+  border-top: 1px solid var(--glass-highlight);
   border-radius: 24px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+  box-shadow: 0 8px 32px 0 var(--shadow-color);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.glass-panel:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 20px 40px 0 var(--shadow-color);
+  border-color: var(--accent);
+}
+
+/* --- TYPOGRAPHY & GRADIENTS --- */
+h1, h2, h3 { font-weight: 800; letter-spacing: -0.02em; }
+p { line-height: 1.7; }
+
 .gradient-text {
-  background: linear-gradient(135deg, var(--accent), #ec4899);
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  font-weight: 800;
+  display: inline-block;
 }
 
+/* --- CUSTOM SCROLLBAR --- */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { 
+  background: linear-gradient(var(--accent), var(--accent-secondary)); 
+  border-radius: 10px; 
+  border: 3px solid var(--bg-color);
+}
+
+/* --- HARRY POTTER THEME SPECIFIC --- */
+.hp-theme {
+  font-family: 'Playfair Display', serif; /* Bookish font */
+  background: linear-gradient(145deg, #3d2b1f, #1a120b) !important;
+  color: #e2d1c3 !important;
+  border: 1px solid #8b6c42 !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7) !important;
+}
+.hp-theme .tech-tag {
+  background: #1a120b !important;
+  color: #d4af37 !important; /* Gold */
+  border: 1px solid #8b6c42 !important;
+}
+.hp-theme h3 { color: #d4af37 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.hp-theme a { color: #d4af37 !important; }
+
+/* --- VYOM THEME SPECIFIC --- */
+.vyom-theme {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #e5e5e5 !important;
+}
+.light-mode .vyom-theme { border: 1px solid #000 !important; } /* High contrast in light mode */
+.vyom-theme .tech-tag {
+  background: #000 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+
+/* --- TIMELINE --- */
 .timeline-line {
-  position: absolute;
-  left: 50%; top: 0; bottom: 0; width: 2px;
-  background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 3px;
+  background: var(--glass-border);
   transform: translateX(-50%);
 }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-
-@media (max-width: 768px) {
-  .timeline-line { left: 20px; }
+.timeline-dot {
+  width: 20px; height: 20px; background: var(--accent);
+  border-radius: 50%; border: 4px solid var(--bg-color);
+  box-shadow: 0 0 0 4px var(--accent-glow);
 }
