@@ -1,25 +1,60 @@
 import { useEffect, useState, useRef } from "react";
 import { 
-  motion, useScroll, useSpring, useMotionValue, useTransform, useVelocity 
+  motion, useScroll, useSpring, useTransform, useVelocity, useAnimationFrame 
 } from "framer-motion";
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
   Database, Sun, Moon, Menu, X, Code2, Cpu, Globe, 
-  Zap, Layers, Terminal, ArrowRight, Sparkles 
+  Zap, Layers, Terminal, Sparkles, Workflow, ArrowRight 
 } from "lucide-react";
 
 import me from './me.jpg'; 
+
+// --- 1. OPTIMIZED CUSTOM CURSOR (No React State Lag) ---
+const CustomCursor = () => {
+  const cursorRef = useRef(null);
+  
+  useEffect(() => {
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+
+    const moveCursor = (e) => {
+      // Direct DOM update = 60fps performance
+      cursor.style.left = `${e.clientX}px`;
+      cursor.style.top = `${e.clientY}px`;
+    };
+
+    const addHover = () => cursor.classList.add("hovered");
+    const removeHover = () => cursor.classList.remove("hovered");
+
+    window.addEventListener("mousemove", moveCursor);
+    document.querySelectorAll("a, button, .project-card, .glass-panel").forEach(el => {
+      el.addEventListener("mouseenter", addHover);
+      el.addEventListener("mouseleave", removeHover);
+    });
+
+    return () => {
+      window.removeEventListener("mousemove", moveCursor);
+      document.querySelectorAll("a, button, .project-card, .glass-panel").forEach(el => {
+        el.removeEventListener("mouseenter", addHover);
+        el.removeEventListener("mouseleave", removeHover);
+      });
+    };
+  }, []);
+
+  return <div ref={cursorRef} className="custom-cursor" />;
+};
 
 // --- DATA ---
 const projects = [
   {
     title: "Vyom Clothing System",
     sub: "Digital Fashion Store",
-    desc: "A premium black & white themed e-commerce experience. Features a minimalist UI, dynamic product cart, secure Stripe checkout, and a seamless shopping journey.",
+    desc: "A premium black & white themed e-commerce experience. Features a minimalist UI, dynamic product cart, secure Stripe checkout, and a seamless shopping journey designed for modern brands.",
     tech: ["React.js", "Commerce.js", "Stripe", "Minimal UI"],
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
-    // Fashion Image (Corrected)
-    img: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop", 
+    // Fashion Image (Kept Previous)
+    img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop", 
     themeClass: "vyom-theme"
   },
   {
@@ -28,27 +63,20 @@ const projects = [
     desc: "A magical library management system. Track your reading progress, write chapter summaries, and rate your collection in an interface inspired by ancient archives.",
     tech: ["MERN Stack", "MongoDB", "JWT Auth", "Book API"],
     link: "https://reading-tracker-system1-vkbm.vercel.app/",
-    // Old Library Image (Corrected & Reliable)
-    img: "https://images.unsplash.com/photo-1507842217343-583bb7260b66?q=80&w=1000&auto=format&fit=crop",
+    // Library Image (Kept Previous)
+    img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop",
     themeClass: "hp-theme"
   },
   {
     title: "Business Card Generator",
     sub: "Professional Identity Suite",
-    desc: "Create vibrant, professional digital identities in seconds. Features real-time customization, QR code integration, and instant PDF export.",
+    desc: "Create vibrant, professional digital identities in seconds. Features real-time customization, QR code integration, and instant PDF export for the modern professional.",
     tech: ["React + Vite", "Tailwind", "QR Code", "Canvas API"],
     link: "https://business-card-generator-mddw.vercel.app/",
-    // Designer Workspace Image (Corrected - No Perfume!)
-    img: "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?q=80&w=1000&auto=format&fit=crop",
+    // Reliable Workspace Image (No Perfume)
+    img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1000&auto=format&fit=crop",
     themeClass: "" 
   }
-];
-
-const skillsData = [
-  { icon: <Terminal size={24} />, category: "Core Languages", skills: ["C", "C++", "Java", "Python", "JavaScript"] },
-  { icon: <Layers size={24} />, category: "Frontend", skills: ["React.js", "Tailwind CSS", "Framer Motion", "Vite"] },
-  { icon: <Cpu size={24} />, category: "Backend", skills: ["Node.js", "Express", "MongoDB", "REST APIs"] },
-  { icon: <Zap size={24} />, category: "Tools", skills: ["Git", "GitHub", "VS Code", "Postman", "Vercel"] }
 ];
 
 const certifications = [
@@ -63,92 +91,9 @@ const education = [
   { school: "St. Joseph's Convent School", degree: "Matriculation (10th)", year: "2021", score: "83.8%" }
 ];
 
-// --- 1. SPOTLIGHT CARD (HOVER GLOW) ---
-const SpotlightCard = ({ children, className = "" }) => {
-  const divRef = useRef(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [opacity, setOpacity] = useState(0);
+// --- COMPONENTS ---
 
-  const handleMouseMove = (e) => {
-    if (!divRef.current) return;
-    const div = divRef.current;
-    const rect = div.getBoundingClientRect();
-    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
-  const handleFocus = () => { setOpacity(1); };
-  const handleBlur = () => { setOpacity(0); };
-
-  return (
-    <div
-      ref={divRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleFocus}
-      onMouseLeave={handleBlur}
-      className={`spotlight-card ${className}`}
-      style={{ "--mouse-x": `${position.x}px`, "--mouse-y": `${position.y}px` }}
-    >
-      {children}
-    </div>
-  );
-};
-
-// --- 2. MAGNETIC BUTTON ---
-const MagneticButton = ({ children, onClick, className, style }) => {
-  const ref = useRef(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  const handleMouse = (e) => {
-    const { clientX, clientY } = e;
-    const { height, width, left, top } = ref.current.getBoundingClientRect();
-    const middleX = clientX - (left + width / 2);
-    const middleY = clientY - (top + height / 2);
-    setPosition({ x: middleX * 0.2, y: middleY * 0.2 });
-  };
-
-  const reset = () => setPosition({ x: 0, y: 0 });
-
-  return (
-    <motion.button
-      ref={ref}
-      onMouseMove={handleMouse}
-      onMouseLeave={reset}
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
-      onClick={onClick}
-      className={className}
-      style={style}
-    >
-      {children}
-    </motion.button>
-  );
-};
-
-// --- 3. 3D TILT CARD ---
-const TiltCard = ({ children, className }) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-100, 100], [5, -5]);
-  const rotateY = useTransform(x, [-100, 100], [-5, 5]);
-
-  return (
-    <motion.div
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        x.set(e.clientX - rect.left - rect.width / 2);
-        y.set(e.clientY - rect.top - rect.height / 2);
-      }}
-      onMouseLeave={() => { x.set(0); y.set(0); }}
-      className={`spotlight-card ${className || ''}`}
-    >
-      <div style={{ transform: "translateZ(30px)" }}>{children}</div>
-    </motion.div>
-  );
-};
-
-// --- 4. VELOCITY SCROLL ---
-const VelocityScroll = ({ children }) => {
+const ScrollVelocity = ({ children }) => {
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
   const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
@@ -159,33 +104,20 @@ const VelocityScroll = ({ children }) => {
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
-  const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 500], [0, 200]); // Parallax Text
-  const y2 = useTransform(scrollY, [0, 500], [0, -100]); // Parallax Image
-
-  // Custom Cursor Logic
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  
+  const [text, setText] = useState("");
+  const fullText = "Full Stack Developer.";
 
   useEffect(() => {
-    const moveCursor = (e) => setMousePos({ x: e.clientX, y: e.clientY });
-    const handleHoverStart = () => setIsHovering(true);
-    const handleHoverEnd = () => setIsHovering(false);
-
-    window.addEventListener("mousemove", moveCursor);
-    const interactiveElements = document.querySelectorAll("a, button, .spotlight-card");
-    interactiveElements.forEach((el) => {
-      el.addEventListener("mouseenter", handleHoverStart);
-      el.addEventListener("mouseleave", handleHoverEnd);
-    });
-
-    return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      interactiveElements.forEach((el) => {
-        el.removeEventListener("mouseenter", handleHoverStart);
-        el.removeEventListener("mouseleave", handleHoverEnd);
-      });
-    };
+    let i = 0;
+    const interval = setInterval(() => {
+      setText(fullText.slice(0, i + 1));
+      i++;
+      if (i > fullText.length) clearInterval(interval);
+    }, 100);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -200,242 +132,247 @@ function App() {
     setMenuOpen(false);
   };
 
-  // Text Reveal Animation
-  const text = "Full Stack Developer";
-  const letters = Array.from(text);
-
   return (
-    <>
-      <motion.div
-        className={`custom-cursor ${isHovering ? "hovered" : ""}`}
-        animate={{ x: mousePos.x, y: mousePos.y }}
-        transition={{ type: "spring", stiffness: 500, damping: 28 }}
-      />
-      
+    <div className="app">
+      <CustomCursor />
       <div className="noise-overlay"></div>
 
-      <div className="app">
+      {/* Progress Bar */}
+      <motion.div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--accent)', scaleX, transformOrigin: "0%", zIndex: 2000 }} />
+
+      {/* NAVBAR */}
+      <motion.nav 
+        initial={{ y: -100 }} animate={{ y: 0 }}
+        style={{ 
+          position: 'fixed', width: '100%', height: '80px', zIndex: 100, 
+          backdropFilter: 'blur(20px)', background: 'rgba(0,0,0,0.01)', borderBottom: '1px solid var(--glass-border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5%'
+        }}
+      >
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 900 }}>Jashandeep<span className="gradient-text">.</span></h2>
         
-        {/* NAVBAR */}
-        <motion.nav 
-          initial={{ y: -100 }} animate={{ y: 0 }} transition={{ delay: 0.5 }}
-          style={{ 
-            position: 'fixed', width: '100%', height: '80px', zIndex: 100, 
-            backdropFilter: 'blur(10px)', background: 'rgba(0,0,0,0.01)', borderBottom: '1px solid var(--glass-border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5%'
-          }}
-        >
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 900 }}>Jashandeep<span className="gradient-text">.</span></h2>
-          
-          <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-            {['About', 'Skills', 'Projects', 'Education', 'Contact'].map(item => (
-              <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '0.95rem', cursor: 'pointer', fontWeight: 600 }}>
-                {item}
-              </button>
-            ))}
-            <MagneticButton onClick={toggleTheme} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}>
-               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </MagneticButton>
-          </div>
-
-          <button onClick={() => setMenuOpen(!menuOpen)} className="mobile-nav" style={{ display:'none', background: 'none', border: 'none', color: 'var(--text-primary)' }}>
-             {menuOpen ? <X/> : <Menu/>}
+        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
+          {['About', 'Skills', 'Projects', 'Timeline', 'Contact'].map(item => (
+            <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '0.95rem', cursor: 'pointer', fontWeight: 600 }}>
+              {item}
+            </button>
+          ))}
+          <button onClick={toggleTheme} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}>
+             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
+        </div>
 
-          {menuOpen && (
-            <div style={{ position: 'absolute', top: '80px', left: 0, width: '100%', background: 'var(--bg-color)', padding: '20px', borderBottom: '1px solid var(--glass-border)' }}>
-               {['About', 'Skills', 'Projects', 'Education', 'Contact'].map(item => (
-                  <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ display: 'block', width: '100%', padding: '15px 0', background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.2rem', textAlign: 'left' }}>{item}</button>
-               ))}
-            </div>
-          )}
-        </motion.nav>
+        <button onClick={() => setMenuOpen(!menuOpen)} className="mobile-nav" style={{ display:'none', background: 'none', border: 'none', color: 'var(--text-primary)' }}>
+           {menuOpen ? <X/> : <Menu/>}
+        </button>
 
-        {/* 1. HERO SECTION (Parallax) */}
-        <section id="about" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingTop: '80px', position: 'relative', overflow:'hidden' }}>
-          <div className="container" style={{ position: 'relative', zIndex: 10 }}>
-            
-            <motion.div 
-               style={{ y: y2, width: '250px', height: '250px', margin: '0 auto 40px', position: 'relative' }}
-               initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 1.5 }}
-            >
-               <div style={{ position: 'absolute', inset: -20, borderRadius: '50%', background: 'radial-gradient(circle, var(--accent), transparent 70%)', opacity: 0.2, filter: 'blur(30px)' }}></div>
-               <img src={me} alt="Jashandeep" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--bg-color)', position: 'relative' }} />
-            </motion.div>
-            
-            <motion.div style={{ y: y1 }}>
-              <h1 style={{ fontSize: 'clamp(3rem, 6vw, 6rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '5px', flexWrap: 'wrap' }}>
-                {letters.map((char, index) => (
-                  <motion.span
-                    key={index}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="gradient-text"
-                  >
-                    {char === " " ? "\u00A0" : char}
-                  </motion.span>
-                ))}
-              </h1>
-              
-              <motion.p 
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-                style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto 50px' }}
-              >
-                Transforming ideas into scalable, high-performance web applications using the MERN Stack.
-              </motion.p>
-              
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                <a href="/resume.pdf" download style={{ textDecoration: 'none' }}>
-                  <MagneticButton 
-                    style={{ padding: '18px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 10px 30px rgba(168, 85, 247, 0.3)' }}
-                  >
-                    <Download size={20} /> Download CV
-                  </MagneticButton>
-                </a>
-              </div>
-            </motion.div>
+        {menuOpen && (
+          <div style={{ position: 'absolute', top: '80px', left: 0, width: '100%', background: 'var(--bg-color)', padding: '20px', borderBottom: '1px solid var(--glass-border)' }}>
+             {['About', 'Skills', 'Projects', 'Timeline', 'Contact'].map(item => (
+                <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ display: 'block', width: '100%', padding: '15px 0', background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.2rem', textAlign: 'left' }}>{item}</button>
+             ))}
           </div>
-        </section>
+        )}
+      </motion.nav>
 
-        {/* 2. SKILLS (Spotlight Grid) */}
-        <section id="skills" style={{ padding: '100px 0' }}>
+      {/* 1. HERO SECTION (Extended) */}
+      <section id="about" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingTop: '80px' }}>
+        <div className="container">
+          <motion.div 
+             initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 1.5 }}
+             style={{ width: '250px', height: '250px', margin: '0 auto 40px', position: 'relative' }}
+          >
+             <div style={{ position: 'absolute', inset: -20, borderRadius: '50%', background: 'var(--accent)', opacity: 0.15, filter: 'blur(40px)', animation: 'pulse 3s infinite' }}></div>
+             <img src={me} alt="Jashandeep" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--bg-color)', position: 'relative' }} />
+          </motion.div>
+          
+          <h1 style={{ fontSize: 'clamp(3rem, 5vw, 6rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}>
+            I am a <span className="gradient-text">{text}</span>
+          </h1>
+          
+          <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 50px' }}>
+            Transforming ideas into scalable, high-performance web applications.
+          </p>
+          
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+            <a href="/resume.pdf" download style={{ textDecoration: 'none' }}>
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                style={{ padding: '18px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+              >
+                <Download size={20} /> Download CV
+              </motion.button>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. SKILLS */}
+      <section id="skills" style={{ padding: '150px 0' }}>
+        <div className="container">
+          <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>Technical Arsenal</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
+            {skillsData.map((cat, i) => (
+              <motion.div 
+                key={i}
+                className="glass-panel"
+                style={{ padding: '40px' }}
+                whileHover={{ y: -10 }}
+              >
+                <div style={{ color: 'var(--accent)', marginBottom: '20px' }}>{cat.icon}</div>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>{cat.category}</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                  {cat.skills.map(skill => (
+                    <span key={skill} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '8px', fontSize: '0.9rem' }}>
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3. NEW SECTION: WORKFLOW (Adds Length) */}
+      <section style={{ padding: '150px 0' }}>
+        <div className="container">
+          <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>My Workflow</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', justifyContent: 'center' }}>
+            {[
+              { title: "Discover", desc: "Understanding the problem statement and requirements." },
+              { title: "Design", desc: "Prototyping and architecture planning." },
+              { title: "Develop", desc: "Clean coding with modern best practices." },
+              { title: "Deploy", desc: "CI/CD integration and cloud hosting." }
+            ].map((step, i) => (
+              <motion.div 
+                key={i} 
+                className="glass-panel" 
+                style={{ width: '250px', padding: '30px', textAlign: 'center' }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <div style={{ width: '50px', height: '50px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontWeight: 'bold' }}>{i+1}</div>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '10px' }}>{step.title}</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. PROJECTS (With Velocity Skew) */}
+      <ScrollVelocity>
+        <section id="projects" style={{ padding: '150px 0' }}>
           <div className="container">
-            <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>Technical Arsenal</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '25px' }}>
-              {skillsData.map((cat, i) => (
-                <SpotlightCard key={i} className="glass-panel" style={{ padding: '40px' }}>
-                  <div style={{ color: 'var(--accent)', marginBottom: '20px' }}>{cat.icon}</div>
-                  <h3 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>{cat.category}</h3>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                    {cat.skills.map(skill => (
-                      <span key={skill} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
-                        {skill}
-                      </span>
-                    ))}
+            <h2 style={{ fontSize: '3rem', marginBottom: '100px', textAlign: 'center' }}>Featured Works</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '150px' }}>
+              {projects.map((proj, i) => (
+                <motion.div 
+                  key={i}
+                  className="project-layout"
+                  initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ margin: "-100px" }}
+                  style={{ display: 'flex', flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', gap: '60px', alignItems: 'center' }}
+                >
+                  <div style={{ flex: 1, width: '100%' }}>
+                    <div className={`glass-panel ${proj.themeClass}`} style={{ overflow: 'hidden', padding: '0', height: '400px' }}>
+                       <img src={proj.img} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} />
+                    </div>
                   </div>
-                </SpotlightCard>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: '2.8rem', marginBottom: '15px' }}>{proj.title}</h3>
+                    <h4 style={{ color: 'var(--accent)', fontSize: '1.3rem', marginBottom: '25px', fontWeight: '600' }}>{proj.sub}</h4>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '35px', lineHeight: 1.7, fontSize: '1.15rem' }}>{proj.desc}</p>
+                    
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '45px' }}>
+                      {proj.tech.map(t => (
+                        <span key={t} style={{ border: '1px solid var(--glass-border)', padding: '8px 18px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 600 }}>{t}</span>
+                      ))}
+                    </div>
+                    
+                    <a href={proj.link} target="_blank" style={{ textDecoration: 'none' }}>
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        style={{ background: 'var(--text-primary)', color: 'var(--bg-color)', padding: '16px 35px', borderRadius: '50px', border: 'none', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+                      >
+                        Visit Live Site <ExternalLink size={20} />
+                      </motion.button>
+                    </a>
+                  </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
+      </ScrollVelocity>
 
-        {/* 3. PROJECTS (Velocity Skew + 3D Tilt) */}
-        <VelocityScroll>
-          <section id="projects" style={{ padding: '100px 0' }}>
-            <div className="container">
-              <h2 style={{ fontSize: '3rem', marginBottom: '100px', textAlign: 'center' }}>Featured Works</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '150px' }}>
-                {projects.map((proj, i) => (
-                  <motion.div 
-                    key={i}
-                    className="project-layout"
-                    initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ margin: "-50px" }}
-                    style={{ display: 'flex', flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', gap: '60px', alignItems: 'center' }}
-                  >
-                    <div style={{ flex: 1, width: '100%' }}>
-                      <TiltCard className={proj.themeClass}>
-                        <div style={{ overflow: 'hidden', borderRadius: '16px', height: '400px' }}>
-                           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', opacity: 0.4 }}></div>
-                           <img src={proj.img} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        </div>
-                      </TiltCard>
+      {/* 5. CERTIFICATES (Endless Marquee) */}
+      <section id="certificates" style={{ padding: '100px 0' }}>
+         <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>Certifications</h2>
+         <div className="marquee-container">
+            <div className="marquee-track">
+               {[...certifications, ...certifications, ...certifications, ...certifications].map((cert, i) => (
+                 <div key={i} className="glass-panel" style={{ minWidth: '500px', overflow: 'hidden', flexShrink: 0, padding: 0 }}>
+                    <div style={{ height: '300px', background: '#000', overflow: 'hidden' }}>
+                       <img src={cert.img} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ fontSize: '2.8rem', marginBottom: '15px', lineHeight: 1.1 }}>{proj.title}</h3>
-                      <h4 style={{ color: 'var(--accent)', fontSize: '1.3rem', marginBottom: '25px', fontWeight: '600' }}>{proj.sub}</h4>
-                      <p style={{ color: 'var(--text-secondary)', marginBottom: '35px', lineHeight: 1.7, fontSize: '1.15rem' }}>{proj.desc}</p>
-                      
-                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '45px' }}>
-                        {proj.tech.map(t => (
-                          <span key={t} style={{ border: '1px solid var(--glass-border)', padding: '8px 18px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 600 }}>{t}</span>
-                        ))}
-                      </div>
-                      
-                      <a href={proj.link} target="_blank" style={{ textDecoration: 'none' }}>
-                        <MagneticButton 
-                          style={{ background: 'var(--text-primary)', color: 'var(--bg-color)', padding: '16px 35px', borderRadius: '50px', border: 'none', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
-                        >
-                          Visit Live Site <ExternalLink size={20} />
-                        </MagneticButton>
-                      </a>
+                    <div style={{ padding: '30px' }}>
+                       <h3 style={{ margin: '0 0 5px 0', fontSize: '1.5rem' }}>{cert.name}</h3>
+                       <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>{cert.issuer}</p>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
+                 </div>
+               ))}
             </div>
-          </section>
-        </VelocityScroll>
+         </div>
+      </section>
 
-        {/* 4. CERTIFICATES (Endless Marquee) */}
-        <section id="education" style={{ padding: '100px 0' }}>
-           <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>Certifications</h2>
-           <div className="marquee-container">
-              <div className="marquee-track">
-                 {[...certifications, ...certifications, ...certifications, ...certifications].map((cert, i) => (
-                   <div key={i} className="spotlight-card" style={{ minWidth: '500px', flexShrink: 0 }}>
-                      <div style={{ height: '300px', background: '#000', overflow: 'hidden' }}>
-                         <img src={cert.img} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                      </div>
-                      <div style={{ padding: '30px' }}>
-                         <h3 style={{ margin: '0 0 5px 0', fontSize: '1.5rem' }}>{cert.name}</h3>
-                         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>{cert.issuer}</p>
-                      </div>
-                   </div>
-                 ))}
+      {/* 6. TIMELINE (Education) */}
+      <section id="timeline" style={{ padding: '150px 0' }}>
+        <div className="container" style={{ maxWidth: '900px', position: 'relative' }}>
+          <h2 style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px' }}>Academic Journey</h2>
+          <div className="timeline-line"></div>
+          {education.map((edu, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ margin: "-50px" }}
+              style={{ display: 'flex', justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-end', marginBottom: '60px', position: 'relative' }}
+            >
+              <div className="timeline-dot" style={{ position: 'absolute', left: '50%', top: '0', transform: 'translate(-50%, 0)', zIndex: 10, width:'20px', height:'20px', background:'var(--accent)', borderRadius:'50%', border:'4px solid var(--bg-color)' }}></div>
+              <div className="glass-panel" style={{ width: '45%', padding: '35px' }}>
+                <span style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: '0.9rem' }}>{edu.year}</span>
+                <h3 style={{ fontSize: '1.5rem', margin: '10px 0' }}>{edu.school}</h3>
+                <h4 style={{ opacity: 0.8, fontSize: '1.1rem', fontWeight: 'normal' }}>{edu.degree}</h4>
+                <div style={{ marginTop: '15px', fontWeight: '800', fontSize: '1.1rem' }}>{edu.score}</div>
               </div>
-           </div>
-        </section>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-        {/* 5. EDUCATION TIMELINE */}
-        <section style={{ padding: '100px 0' }}>
-          <div className="container" style={{ maxWidth: '900px', position: 'relative' }}>
-            <h2 style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px' }}>Academic Journey</h2>
-            <div className="timeline-line"></div>
-            {education.map((edu, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ margin: "-50px" }}
-                style={{ display: 'flex', justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-end', marginBottom: '80px', position: 'relative' }}
-              >
-                <div className="timeline-dot" style={{ position: 'absolute', left: '50%', top: '0', transform: 'translate(-50%, 0)', zIndex: 10, width:'20px', height:'20px', background:'var(--accent)', borderRadius:'50%', border:'4px solid var(--bg-color)' }}></div>
-                <SpotlightCard style={{ width: '45%', padding: '35px' }}>
-                  <span style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: '0.9rem' }}>{edu.year}</span>
-                  <h3 style={{ fontSize: '1.5rem', margin: '10px 0' }}>{edu.school}</h3>
-                  <h4 style={{ opacity: 0.8, fontSize: '1.1rem', fontWeight: 'normal' }}>{edu.degree}</h4>
-                  <div style={{ marginTop: '15px', fontWeight: '800', fontSize: '1.1rem' }}>{edu.score}</div>
-                </SpotlightCard>
-              </motion.div>
-            ))}
+      {/* 7. CONTACT */}
+      <section id="contact" style={{ padding: '150px 0' }}>
+        <div className="container" style={{ textAlign: 'center', maxWidth: '800px' }}>
+          <div className="glass-panel" style={{ padding: '80px 40px' }}>
+            <h2 style={{ fontSize: '3.5rem', marginBottom: '20px' }}>Let's Build Something.</h2>
+            <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', marginBottom: '50px' }}>
+              I am currently available for full-time roles and freelance projects.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              <a href="mailto:jashandeep20445@gmail.com" style={{ textDecoration: 'none' }}>
+                <motion.button whileHover={{ scale: 1.05 }} style={{ padding: '20px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}>
+                  <Mail size={22} /> Email Me
+                </motion.button>
+              </a>
+              <a href="https://linkedin.com/in/jashan23" target="_blank" style={{ textDecoration: 'none' }}>
+                 <motion.button whileHover={{ scale: 1.05 }} style={{ padding: '20px 45px', borderRadius: '50px', background: 'transparent', color: 'var(--text-primary)', border: '2px solid var(--text-primary)', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}>
+                  <Linkedin size={22} /> LinkedIn
+                </motion.button>
+              </a>
+            </div>
           </div>
-        </section>
-
-        {/* 6. CONTACT */}
-        <section id="contact" style={{ padding: '100px 0 150px 0' }}>
-          <div className="container" style={{ textAlign: 'center', maxWidth: '800px' }}>
-            <SpotlightCard style={{ padding: '80px 40px' }}>
-              <h2 style={{ fontSize: '3.5rem', marginBottom: '20px' }}>Let's Build Something.</h2>
-              <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', marginBottom: '50px' }}>
-                I am currently available for full-time roles and freelance projects.
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-                <a href="mailto:jashandeep20445@gmail.com" style={{ textDecoration: 'none' }}>
-                  <MagneticButton style={{ padding: '20px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}>
-                    <Mail size={22} /> Email Me
-                  </MagneticButton>
-                </a>
-                <a href="https://linkedin.com/in/jashan23" target="_blank" style={{ textDecoration: 'none' }}>
-                   <MagneticButton style={{ padding: '20px 45px', borderRadius: '50px', background: 'transparent', color: 'var(--text-primary)', border: '2px solid var(--text-primary)', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}>
-                    <Linkedin size={22} /> LinkedIn
-                  </MagneticButton>
-                </a>
-              </div>
-            </SpotlightCard>
-          </div>
-        </section>
-        
-      </div>
-    </>
+        </div>
+      </section>
+      
+    </div>
   );
 }
 

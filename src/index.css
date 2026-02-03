@@ -1,30 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
 
 :root {
-  /* DARK MODE (Void) */
   --bg-color: #030005;
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
   --accent: #a855f7;
-  --accent-glow: rgba(168, 85, 247, 0.5);
   --glass-panel: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --card-spotlight: rgba(255, 255, 255, 0.15);
+  --cursor-size: 20px;
 }
 
-/* LIGHT MODE (Frost) */
 .light-mode {
   --bg-color: #f8fafc;
   --text-primary: #020617;
   --text-secondary: #475569;
   --accent: #2563eb;
-  --accent-glow: rgba(37, 99, 235, 0.3);
   --glass-panel: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(0, 0, 0, 0.1);
-  --card-spotlight: rgba(37, 99, 235, 0.1);
 }
 
-* { box-sizing: border-box; cursor: none; }
+* { box-sizing: border-box; cursor: none; } /* Hide default cursor */
 
 @media (hover: none) { * { cursor: auto !important; } }
 
@@ -35,65 +30,65 @@ body {
   margin: 0;
   width: 100%;
   overflow-x: hidden;
-  transition: background 0.5s ease, color 0.5s ease;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* --- CINEMATIC GRAIN --- */
-.noise-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 9000; opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
-
-/* --- CUSTOM CURSOR --- */
+/* --- OPTIMIZED CURSOR (Hardware Accelerated) --- */
 .custom-cursor {
   position: fixed; top: 0; left: 0; width: 20px; height: 20px;
   border: 1px solid var(--text-primary); border-radius: 50%;
-  pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
-  mix-blend-mode: difference; transition: width 0.3s, height 0.3s;
+  pointer-events: none; z-index: 9999;
+  transform: translate3d(-50%, -50%, 0); /* GPU acceleration */
+  transition: width 0.2s, height 0.2s, background-color 0.2s; 
+  mix-blend-mode: difference;
 }
-.custom-cursor.hovered { width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-color: var(--accent); }
+.custom-cursor.hovered { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-color: transparent; }
 
-/* --- SPOTLIGHT CARD EFFECT --- */
-.spotlight-card {
-  position: relative; background: var(--glass-panel);
-  border: 1px solid var(--glass-border); border-radius: 16px;
-  overflow: hidden; transition: transform 0.3s;
+/* --- NOISE OVERLAY (Optimized opacity) --- */
+.noise-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 9000; opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
-.spotlight-card::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: 16px; padding: 1.5px; 
-  background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), var(--accent), transparent 40%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  pointer-events: none; opacity: 0; transition: opacity 0.5s;
+
+/* --- GLASS CARD --- */
+.glass-panel {
+  background: var(--glass-panel);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  /* Reduced blur for performance */
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.3s ease, border-color 0.3s ease;
 }
-.spotlight-card:hover::before { opacity: 1; }
+.glass-panel:hover { border-color: var(--accent); }
 
 /* --- UTILITIES --- */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 .gradient-text {
-  background: linear-gradient(135deg, var(--accent), #ec4899, var(--accent));
-  background-size: 200% auto;
+  background: linear-gradient(135deg, var(--accent), #ec4899);
   -webkit-background-clip: text; background-clip: text; color: transparent;
-  animation: shine 5s linear infinite;
 }
-@keyframes shine { to { background-position: 200% center; } }
-
-/* --- MARQUEE --- */
-.marquee-container { overflow: hidden; white-space: nowrap; width: 100%; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
-.marquee-track { display: flex; gap: 40px; width: max-content; animation: scroll 60s linear infinite; }
-.marquee-track:hover { animation-play-state: paused; }
-@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
 /* --- THEMES --- */
 .vyom-theme { background: #000 !important; color: #fff !important; border: 1px solid #333 !important; }
 .light-mode .vyom-theme { background: #fff !important; color: #000 !important; border: 1px solid #ddd !important; }
 .hp-theme { font-family: 'Playfair Display', serif; background: linear-gradient(145deg, #2c241b, #15110e) !important; color: #d6cfc7 !important; border: 1px solid #8a6a4b !important; }
 
-/* --- RESPONSIVE --- */
+/* --- MARQUEE --- */
+.marquee-container { overflow: hidden; width: 100%; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+.marquee-track { display: flex; gap: 40px; width: max-content; animation: scroll 80s linear infinite; } /* Slower */
+@keyframes scroll { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-50%,0,0); } }
+
+/* --- TIMELINE --- */
+.timeline-line {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--glass-border), transparent);
+  transform: translateX(-50%);
+}
+
 @media (max-width: 768px) {
   .project-layout { flex-direction: column !important; }
+  .timeline-line { left: 20px; }
   .custom-cursor { display: none; }
-  h1 { font-size: 3rem !important; }
 }
