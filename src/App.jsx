@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { 
-  motion, useScroll, useSpring, useTransform, useVelocity, useAnimationFrame 
+  motion, useScroll, useSpring, useTransform, useVelocity 
 } from "framer-motion";
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
@@ -46,6 +46,15 @@ const CustomCursor = () => {
 };
 
 // --- DATA ---
+
+// *** THIS WAS MISSING BEFORE - ADDED BACK NOW ***
+const skillsData = [
+  { icon: <Terminal size={24} />, category: "Core Languages", skills: ["C", "C++", "Java", "Python", "JavaScript"] },
+  { icon: <Layers size={24} />, category: "Frontend", skills: ["React.js", "Tailwind CSS", "Framer Motion", "Vite"] },
+  { icon: <Cpu size={24} />, category: "Backend", skills: ["Node.js", "Express", "MongoDB", "REST APIs"] },
+  { icon: <Zap size={24} />, category: "Tools", skills: ["Git", "GitHub", "VS Code", "Postman", "Vercel"] }
+];
+
 const projects = [
   {
     title: "Vyom Clothing System",
@@ -53,7 +62,6 @@ const projects = [
     desc: "A premium black & white themed e-commerce experience. Features a minimalist UI, dynamic product cart, secure Stripe checkout, and a seamless shopping journey designed for modern brands.",
     tech: ["React.js", "Commerce.js", "Stripe", "Minimal UI"],
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
-    // Fashion Image (Kept Previous)
     img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop", 
     themeClass: "vyom-theme"
   },
@@ -63,7 +71,6 @@ const projects = [
     desc: "A magical library management system. Track your reading progress, write chapter summaries, and rate your collection in an interface inspired by ancient archives.",
     tech: ["MERN Stack", "MongoDB", "JWT Auth", "Book API"],
     link: "https://reading-tracker-system1-vkbm.vercel.app/",
-    // Library Image (Kept Previous)
     img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop",
     themeClass: "hp-theme"
   },
@@ -73,7 +80,6 @@ const projects = [
     desc: "Create vibrant, professional digital identities in seconds. Features real-time customization, QR code integration, and instant PDF export for the modern professional.",
     tech: ["React + Vite", "Tailwind", "QR Code", "Canvas API"],
     link: "https://business-card-generator-mddw.vercel.app/",
-    // Reliable Workspace Image (No Perfume)
     img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1000&auto=format&fit=crop",
     themeClass: "" 
   }
@@ -234,7 +240,7 @@ function App() {
         </div>
       </section>
 
-      {/* 3. NEW SECTION: WORKFLOW (Adds Length) */}
+      {/* 3. WORKFLOW */}
       <section style={{ padding: '150px 0' }}>
         <div className="container">
           <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>My Workflow</h2>
@@ -260,7 +266,7 @@ function App() {
         </div>
       </section>
 
-      {/* 4. PROJECTS (With Velocity Skew) */}
+      {/* 4. PROJECTS */}
       <ScrollVelocity>
         <section id="projects" style={{ padding: '150px 0' }}>
           <div className="container">
@@ -305,8 +311,8 @@ function App() {
         </section>
       </ScrollVelocity>
 
-      {/* 5. CERTIFICATES (Endless Marquee) */}
-      <section id="certificates" style={{ padding: '100px 0' }}>
+      {/* 5. CERTIFICATES */}
+      <section id="education" style={{ padding: '100px 0' }}>
          <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>Certifications</h2>
          <div className="marquee-container">
             <div className="marquee-track">
@@ -325,7 +331,7 @@ function App() {
          </div>
       </section>
 
-      {/* 6. TIMELINE (Education) */}
+      {/* 6. TIMELINE */}
       <section id="timeline" style={{ padding: '150px 0' }}>
         <div className="container" style={{ maxWidth: '900px', position: 'relative' }}>
           <h2 style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px' }}>Academic Journey</h2>
