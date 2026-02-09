@@ -1,281 +1,245 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rye&family=Courier+Prime:wght@400;700&family=Cinzel:wght@400;700;900&display=swap');
 
 :root {
-  --bg-color: #0b0f19; /* Deep Navy/Black */
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent: #3b82f6; /* Professional Blue */
-  --accent-glow: rgba(59, 130, 246, 0.5);
-  --card-bg: rgba(30, 41, 59, 0.4);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --nav-bg: rgba(11, 15, 25, 0.85);
+  --rdr-red: #8a0303;
+  --rdr-red-dark: #5c0000;
+  --rdr-black: #0a0a0a;
+  --rdr-paper: #e3dac9; /* Parchment color */
+  --rdr-paper-dark: #d4c5a9;
+  --rdr-gold: #cda85d;
+  --rdr-dust: rgba(227, 218, 201, 0.1);
+  --overlay-grain: url("https://www.transparenttextures.com/patterns/stardust.png");
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  cursor: url('https://cdn.custom-cursor.com/db/cursor/32/red_dead_redemption_2_cursor.png'), auto; /* Optional custom cursor */
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  line-height: 1.6;
+  background-color: var(--rdr-black);
+  color: var(--rdr-paper);
+  font-family: 'Cinzel', serif; /* Elegant, slightly vintage */
   overflow-x: hidden;
 }
 
-/* --- BACKGROUND GLOW --- */
-.bg-glow {
+/* --- FILM GRAIN & ATMOSPHERE --- */
+.vignette {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: -1;
-  background: 
-    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
   pointer-events: none;
+  z-index: 999;
 }
 
-/* --- NAVBAR --- */
-.navbar {
+.grain-overlay {
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 70px;
-  background: var(--nav-bg);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--card-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 5%;
-  z-index: 1000;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: var(--overlay-grain);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 998;
 }
 
-.logo {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+/* --- TYPOGRAPHY --- */
+h1, h2, h3 {
+  font-family: 'Rye', serif; /* The Western Font */
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
-.nav-links {
-  display: flex;
-  gap: 30px;
-}
-
-.nav-link {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.nav-link:hover {
-  color: var(--accent);
-}
+.western-font { font-family: 'Rye', serif; }
+.typewriter { font-family: 'Courier Prime', monospace; }
 
 /* --- HERO SECTION --- */
-.hero {
-  min-height: 100vh;
+.hero-section {
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px 0;
-  text-align: center;
+  position: relative;
+  background: 
+    linear-gradient(to bottom, rgba(10,10,10,0.3), var(--rdr-black)),
+    url('https://images.unsplash.com/photo-1547287737-1498b8989531?q=80&w=2070&auto=format&fit=crop'); /* Desert bg */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Parallax feel */
 }
 
 .hero-content {
-  max-width: 800px;
+  text-align: center;
+  z-index: 10;
+  border-top: 2px solid var(--rdr-red);
+  border-bottom: 2px solid var(--rdr-red);
+  padding: 40px;
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(5px);
 }
 
-.profile-container {
-  width: 160px;
-  height: 160px;
-  margin: 0 auto 30px;
-  padding: 4px;
-  background: linear-gradient(135deg, var(--accent), #8b5cf6);
-  border-radius: 50%;
-  box-shadow: 0 0 40px var(--accent-glow);
+.hero-title {
+  font-size: clamp(3rem, 6vw, 6rem);
+  color: var(--rdr-paper);
+  text-shadow: 0 0 20px rgba(0,0,0,0.8);
+  margin-bottom: 10px;
 }
 
-.profile-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 4px solid var(--bg-color);
-  background-color: #1e293b; /* Fallback color */
+.hero-subtitle {
+  color: var(--rdr-red);
+  font-size: 1.5rem;
+  letter-spacing: 4px;
+  font-weight: bold;
 }
 
-h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 800;
-  letter-spacing: -1px;
+/* --- WANTED POSTER (About) --- */
+.wanted-poster {
+  background: var(--rdr-paper);
+  color: #2b2b2b;
+  padding: 40px;
+  max-width: 400px;
+  margin: 0 auto;
+  transform: rotate(-2deg);
+  box-shadow: 10px 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid #bfaea0;
+  text-align: center;
+}
+
+.wanted-header {
+  font-family: 'Rye', serif;
+  font-size: 3.5rem;
+  line-height: 1;
   margin-bottom: 20px;
-  background: linear-gradient(to right, #fff, #cbd5e1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  border-bottom: 4px solid #2b2b2b;
+  padding-bottom: 10px;
 }
 
-.subtitle {
-  font-size: 1.2rem;
-  color: var(--text-secondary);
-  margin-bottom: 40px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* --- BUTTONS --- */
-.btn-group {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 28px;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-}
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px var(--accent-glow);
-}
-
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary);
-  border: 1px solid var(--card-border);
-}
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+.poster-img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  filter: sepia(100%) contrast(120%) grayscale(20%);
+  border: 4px solid #2b2b2b;
+  margin-bottom: 20px;
 }
 
 /* --- SECTIONS --- */
 section {
   padding: 100px 5%;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
-.section-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 50px;
+.section-header {
   text-align: center;
+  margin-bottom: 80px;
+  position: relative;
 }
 
-.section-title span {
-  color: var(--accent);
+.section-header h2 {
+  font-size: 3rem;
+  color: var(--rdr-paper);
 }
 
-/* --- CARDS GRID --- */
-.grid {
+.section-header::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 3px;
+  background: var(--rdr-red);
+  margin: 20px auto;
+}
+
+/* --- BOUNTY CARDS (Projects) --- */
+.bounty-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 40px;
 }
 
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: transform 0.3s, border-color 0.3s;
+.bounty-card {
+  background: #1a1a1a;
+  border: 1px solid var(--rdr-gold);
+  position: relative;
+  transition: transform 0.3s ease;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  border-color: var(--accent);
+.bounty-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 0 30px rgba(205, 168, 93, 0.2);
 }
 
-.card-content {
-  padding: 24px;
-}
-
-/* --- PROJECTS --- */
-.project-img-wrapper {
+.bounty-img-container {
   height: 200px;
   overflow: hidden;
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--rdr-gold);
 }
 
-.project-img {
+.bounty-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s;
+  filter: sepia(30%);
+  transition: 0.5s;
 }
 
-.card:hover .project-img {
-  transform: scale(1.05);
+.bounty-card:hover .bounty-img {
+  filter: sepia(0%);
+  transform: scale(1.1);
 }
 
-.tags {
+.bounty-content {
+  padding: 25px;
+}
+
+.reward-text {
+  color: var(--rdr-red);
+  font-family: 'Rye', serif;
+  font-size: 1.2rem;
+  margin-top: 15px;
+}
+
+/* --- SKILL ARSENAL --- */
+.ammo-box {
+  background: rgba(40, 40, 40, 0.8);
+  border: 2px solid #555;
+  padding: 20px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0 24px;
+  align-items: center;
+  gap: 15px;
+  transition: 0.3s;
 }
 
-.tag {
-  font-size: 0.8rem;
-  padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  color: var(--text-secondary);
+.ammo-box:hover {
+  background: var(--rdr-red-dark);
+  border-color: var(--rdr-red);
 }
 
-/* --- SKILLS --- */
-.skill-card {
-  padding: 30px;
-  text-align: center;
+/* --- BUTTONS --- */
+.btn-western {
+  background: transparent;
+  color: var(--rdr-paper);
+  border: 2px solid var(--rdr-paper);
+  padding: 12px 30px;
+  font-family: 'Rye', serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.skill-icon {
-  color: var(--accent);
-  margin-bottom: 16px;
+.btn-western:hover {
+  background: var(--rdr-paper);
+  color: var(--rdr-black);
 }
 
-/* --- EDUCATION TIMELINE --- */
-.timeline {
-  max-width: 800px;
-  margin: 0 auto;
-  border-left: 2px solid var(--card-border);
-  padding-left: 30px;
+.btn-primary-red {
+  background: var(--rdr-red);
+  border: 2px solid var(--rdr-red);
 }
 
-.timeline-item {
-  position: relative;
-  margin-bottom: 50px;
-}
-
-.timeline-dot {
-  position: absolute;
-  left: -37px;
-  top: 0;
-  width: 12px;
-  height: 12px;
-  background: var(--accent);
-  border-radius: 50%;
-  border: 4px solid var(--bg-color);
-}
-
-/* --- FOOTER --- */
-footer {
-  text-align: center;
-  padding: 80px 0 40px;
-  color: var(--text-secondary);
-  border-top: 1px solid var(--card-border);
+.btn-primary-red:hover {
+  background: var(--rdr-red-dark);
+  color: var(--rdr-paper);
 }
