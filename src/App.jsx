@@ -1,351 +1,304 @@
-/* --- App.jsx --- */
 import { useEffect, useState, useRef } from "react";
 import { 
-  motion, useScroll, useSpring, useTransform, useVelocity, 
-  useMotionValue, useAnimationFrame, AnimatePresence 
+  motion, useScroll, useSpring, useTransform, useMotionValue, AnimatePresence 
 } from "framer-motion";
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
-  Terminal, Layers, Cpu, Zap, X, Menu, Play
+  Cpu, Zap, Globe, Terminal, PlayCircle
 } from "lucide-react";
 
 import me from './me.jpg'; 
 
-// --- 1. THE HANGING ROPE LIGHT SWITCH ---
-const LightSwitch = ({ theme, toggleTheme }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const y = useMotionValue(0);
-  // Spring physics for the rope bounce
-  const springY = useSpring(y, { stiffness: 400, damping: 15 });
-  
-  // Calculate rope length based on pull
-  const height = useTransform(springY, [0, 200], [80, 280]); 
-
-  const handleDragEnd = (_, info) => {
-    setIsDragging(false);
-    if (info.offset.y > 100) {
-      toggleTheme();
-      // Play a click sound effect here if you have one
-    }
-    y.set(0); // Snap back
-  };
-
-  return (
-    <div style={{ position: 'fixed', top: 0, right: '8%', zIndex: 2000, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {/* The Rope Line */}
-      <motion.div 
-        style={{ 
-          width: '2px', 
-          height: height, 
-          background: 'var(--rope-color)',
-          transformOrigin: 'top center'
-        }} 
-      />
-      
-      {/* The Handle / Bulb */}
-      <motion.div
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 200 }}
-        dragElastic={0.1} // Makes it feel heavy
-        whileHover={{ scale: 1.1, cursor: 'grab' }}
-        whileTap={{ scale: 0.9, cursor: 'grabbing' }}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
-        style={{ 
-          y: springY, 
-          width: '20px', 
-          height: '40px', 
-          borderRadius: '10px',
-          background: theme === 'dark' ? '#333' : '#fff',
-          border: '2px solid var(--accent)',
-          boxShadow: `0 0 ${isDragging ? 40 : 10}px var(--accent)`,
-          display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
-          position: 'relative', top: '-2px'
-        }}
-      >
-          {/* Bulb filament */}
-          <div style={{ width: '4px', height: '8px', background: 'var(--accent)', marginBottom: '5px', borderRadius: '2px' }}></div>
-      </motion.div>
-    </div>
-  );
-};
-
-// --- 2. 3D TILT CARD COMPONENT ---
-const TiltCard = ({ children, className }) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  
-  const mouseX = useSpring(x, { stiffness: 150, damping: 15 });
-  const mouseY = useSpring(y, { stiffness: 150, damping: 15 });
-
-  const rotateX = useTransform(mouseY, [-0.5, 0.5], ["15deg", "-15deg"]);
-  const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-15deg", "15deg"]);
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseXFromCenter = e.clientX - rect.left - width / 2;
-    const mouseYFromCenter = e.clientY - rect.top - height / 2;
-    x.set(mouseXFromCenter / width);
-    y.set(mouseYFromCenter / height);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      style={{ perspective: 1000 }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      <motion.div
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className={className}
-      >
-        <div style={{ transform: "translateZ(50px)" }}>
-          {children}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
-
-// --- DATA ---
-const skillsData = [
-  { icon: <Terminal size={30} />, category: "Core Languages", skills: ["C", "C++", "Java", "Python", "JavaScript"] },
-  { icon: <Layers size={30} />, category: "Frontend", skills: ["React.js", "Tailwind CSS", "Framer Motion", "Vite"] },
-  { icon: <Cpu size={30} />, category: "Backend", skills: ["Node.js", "Express", "MongoDB", "REST APIs"] },
-  { icon: <Zap size={30} />, category: "Tools", skills: ["Git", "GitHub", "VS Code", "Postman", "Vercel"] }
+// --- DATA: RESTORED & ENHANCED ---
+const education = [
+  { 
+    level: "LEVEL 03", 
+    title: "Bachelor of Technology (CSE)", 
+    place: "Lovely Professional University", 
+    stats: "CGPA: 6.8", 
+    year: "2023 - PRESENT",
+    desc: "Specialization in Full Stack Web Development."
+  },
+  { 
+    level: "LEVEL 02", 
+    title: "Senior Secondary (12th)", 
+    place: "Dr. Asanand Arya Model School", 
+    stats: "Score: 88.6%", 
+    year: "2022",
+    desc: "Focus on Physics, Chemistry, and Mathematics."
+  },
+  { 
+    level: "LEVEL 01", 
+    title: "Matriculation (10th)", 
+    place: "St. Joseph's Convent School", 
+    stats: "Score: 83.8%", 
+    year: "2021",
+    desc: "Foundation in Computer Science basics."
+  }
 ];
 
 const projects = [
   {
     title: "Vyom Clothing",
-    sub: "E-Commerce",
-    desc: "Premium fashion store with minimalist UI and Stripe integration.",
-    tech: ["React.js", "Commerce.js"],
-    link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
-    img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop"
+    sub: "E-Commerce Engine",
+    tech: ["React.js", "Commerce.js", "Stripe"],
+    img: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop",
+    link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/"
   },
   {
     title: "Story Verse",
-    sub: "Library System",
-    desc: "Magical library management to track progress and write summaries.",
-    tech: ["MERN Stack", "MongoDB"],
-    link: "https://reading-tracker-system1-vkbm.vercel.app/",
-    img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop"
+    sub: "Archive System",
+    tech: ["MERN Stack", "MongoDB", "JWT"],
+    img: "https://images.unsplash.com/photo-1507842217121-ad0773cf4a0f?q=80&w=1000&auto=format&fit=crop",
+    link: "https://reading-tracker-system1-vkbm.vercel.app/"
   },
   {
-    title: "ID Generator",
-    sub: "Identity Suite",
-    desc: "Generate professional business cards with QR codes instantly.",
-    tech: ["React", "Canvas API"],
-    link: "https://business-card-generator-mddw.vercel.app/",
-    img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1000&auto=format&fit=crop"
+    title: "Biz-ID Gen",
+    sub: "Identity Fabricator",
+    tech: ["React + Vite", "Canvas API"],
+    img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop",
+    link: "https://business-card-generator-mddw.vercel.app/"
   }
 ];
 
-// --- APP COMPONENT ---
+const skills = [
+  { icon: <Terminal size={20}/>, name: "C / C++ / Java" },
+  { icon: <Globe size={20}/>, name: "React / Vite" },
+  { icon: <Cpu size={20}/>, name: "Node / Mongo" },
+  { icon: <Zap size={20}/>, name: "Tailwind / Motion" }
+];
+
+// --- COMPONENT: PHYSICS ROPE LIGHT ---
+const RopeLight = ({ toggleTheme, theme }) => {
+  const [dragging, setDragging] = useState(false);
+  
+  // Motion values for spring physics
+  const y = useMotionValue(0);
+  const springY = useSpring(y, { stiffness: 600, damping: 10 });
+  const ropeHeight = useTransform(springY, [0, 300], [0, 300]);
+
+  const handleDragEnd = (_, info) => {
+    setDragging(false);
+    if (info.offset.y > 100) {
+      toggleTheme(); // Trigger theme switch
+    }
+    y.set(0); // Snap back
+  };
+
+  return (
+    <div className="rope-container">
+      {/* The Rope SVG - Always Visible */}
+      <svg width="40" height="400" style={{ position: 'absolute', top: 0, overflow:'visible', pointerEvents:'none' }}>
+         <motion.line 
+           x1="20" y1="0" 
+           x2="20" y2={ropeHeight} 
+           stroke={theme === 'dark' ? '#555' : '#333'} 
+           strokeWidth="4" 
+           style={{ translateY: 0 }} // Start slightly off screen
+         />
+      </svg>
+
+      {/* The Handle / Bulb */}
+      <motion.div
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 200 }}
+        dragElastic={0.2}
+        onDragStart={() => setDragging(true)}
+        onDragEnd={handleDragEnd}
+        style={{ 
+          y: springY, 
+          marginTop: ropeHeight, // Push down by rope length
+          cursor: 'grab',
+          zIndex: 1000
+        }}
+      >
+        <div style={{ 
+          width: '30px', height: '50px', 
+          background: theme === 'dark' ? '#222' : '#fff', 
+          border: '3px solid var(--accent)', 
+          borderRadius: '10px 10px 30px 30px',
+          boxShadow: dragging ? '0 0 50px var(--accent)' : '0 0 10px var(--accent)',
+          display: 'flex', justifyContent: 'center', alignItems: 'flex-end', paddingBottom:'5px'
+        }}>
+           <div style={{ width: '8px', height: '10px', background: 'var(--accent)', borderRadius: '50%' }}></div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- MAIN APP ---
 function App() {
-  const [loading, setLoading] = useState(true);
+  const [start, setStart] = useState(false);
   const [theme, setTheme] = useState("dark");
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  // Initial System Boot Sequence
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 2000);
-  }, []);
 
   useEffect(() => {
     document.body.className = theme === "dark" ? "" : "light-mode";
   }, [theme]);
 
-  const toggleTheme = () => setTheme(prev => prev === "dark" ? "light" : "dark");
-  
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-    setMenuOpen(false);
-  };
-
-  if (loading) return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#000', color: '#00ff9d', fontFamily: 'monospace' }}>
-      <motion.div 
-        animate={{ rotate: 360 }} 
-        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        style={{ width: '50px', height: '50px', border: '4px solid #00ff9d', borderTop: '4px solid transparent', borderRadius: '50%', marginBottom: '20px' }}
-      />
-      <h2>INITIALIZING SYSTEM...</h2>
-      <p>LOADING ASSETS_</p>
-    </div>
-  );
+  // --- START SCREEN (PRESS ENTER) ---
+  if (!start) {
+    return (
+      <div className="start-screen" onClick={() => setStart(true)}>
+        <motion.h1 
+          animate={{ opacity: [0.5, 1, 0.5] }} 
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="glitch" 
+          data-text="SYSTEM READY"
+          style={{ fontSize: '4rem', color: 'var(--accent)', cursor: 'pointer', fontFamily: 'Orbitron' }}
+        >
+          SYSTEM READY
+        </motion.h1>
+        <p style={{ color: '#fff', fontFamily: 'monospace', marginTop: '20px' }}>
+          [ CLICK TO INITIALIZE INTERFACE ]
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
-      {/* GLOBAL UI ELEMENTS */}
-      <div className="grid-bg"></div>
-      <div className="vignette"></div>
-      <div className="scanlines"></div>
-      <LightSwitch theme={theme} toggleTheme={toggleTheme} />
+      <div className="cyber-grid"></div>
+      <RopeLight theme={theme} toggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} />
+      
+      {/* PROGRESS BAR */}
+      <motion.div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--accent)', scaleX, transformOrigin: "0%", zIndex: 100 }} />
 
-      {/* CUSTOM CURSOR */}
-      <CustomCursor />
-
-      {/* SCROLL PROGRESS */}
-      <motion.div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--accent)', scaleX, transformOrigin: "0%", zIndex: 2000 }} />
-
-      {/* HUD NAVBAR */}
-      <motion.nav 
-        initial={{ y: -100 }} animate={{ y: 0 }}
-        style={{ 
-          position: 'fixed', width: '100%', height: '80px', zIndex: 100, 
-          backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--glass-border)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5%'
-        }}
-      >
-        <div style={{ display:'flex', alignItems:'center', gap:'10px'}}>
-           <Terminal size={24} color="var(--accent)"/>
-           <h2 style={{ fontSize: '1.5rem', fontWeight: 900, margin:0 }}>Jashan<span style={{color:'var(--accent)'}}>.dev</span></h2>
-        </div>
-        
-        <div className="desktop-nav" style={{ display: 'flex', gap: '30px' }}>
-          {['About', 'Skills', 'Projects', 'Contact'].map(item => (
-            <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', cursor: 'pointer', fontFamily:'Space Grotesk', textTransform:'uppercase' }}>
-              [{item}]
-            </button>
-          ))}
-        </div>
-      </motion.nav>
-
-      {/* 1. HERO SECTION */}
-      <section id="about" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingTop: '80px', position: 'relative' }}>
-        <div className="container">
-          <TiltCard className="glass-panel" style={{ display: 'inline-block', borderRadius: '50%', padding: '10px', background: 'transparent', border: 'none' }}>
-             <motion.div 
-               initial={{ scale: 0 }} animate={{ scale: 1 }}
-               style={{ width: '250px', height: '250px', borderRadius: '50%', border: '4px solid var(--accent)', padding: '5px', position: 'relative' }}
-             >
-                <div style={{ position: 'absolute', inset: 0, border: '1px dashed var(--accent)', borderRadius: '50%', animation: 'spin 10s linear infinite' }}></div>
-                <img src={me} alt="Jashandeep" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', filter: 'grayscale(100%) contrast(1.2)' }} />
-             </motion.div>
-          </TiltCard>
+      {/* --- HERO: CHARACTER SELECT --- */}
+      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 20px' }}>
+        <div className="container" style={{ maxWidth: '1000px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '50px' }}>
           
-          <h1 style={{ fontSize: 'clamp(3rem, 6vw, 7rem)', margin: '30px 0', lineHeight: 0.9 }}>
-            FULL STACK <br/> <span className="gradient-text">OPERATOR</span>
-          </h1>
-          
-          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 40px', fontFamily: 'monospace' }}>
-             // SYSTEM STATUS: ONLINE <br/>
-             // MISSION: TRANSFORMING IDEAS INTO SCALABLE APPLICATIONS
-          </p>
-          
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-             <a href="/resume.pdf" download className="hud-btn" style={{ padding: '15px 40px', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Download size={18} /> Initialize CV
-             </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. SKILLS GRID */}
-      <section id="skills" style={{ padding: '100px 0' }}>
-        <div className="container">
-          <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>:: ARMORY ::</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
-            {skillsData.map((cat, i) => (
-              <TiltCard key={i} className="glass-panel" style={{ padding: '0' }}>
-                 <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <div style={{ color: 'var(--accent)', marginBottom: '20px' }}>{cat.icon}</div>
-                    <h3 style={{ fontSize: '1.4rem', marginBottom: '20px' }}>{cat.category}</h3>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      {cat.skills.map(skill => (
-                        <span key={skill} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', fontSize: '0.8rem', fontFamily: 'monospace' }}>
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                 </div>
-              </TiltCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. PROJECTS DECK */}
-      <section id="projects" style={{ padding: '100px 0' }}>
-          <div className="container">
-            <h2 style={{ fontSize: '3rem', marginBottom: '100px', textAlign: 'center' }}>:: MISSIONS ::</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '100px' }}>
-              {projects.map((proj, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', gap: '50px', alignItems: 'center' }}>
-                    <div style={{ flex: 1.5 }}>
-                        <TiltCard className="glass-panel" style={{ padding: 0 }}>
-                            <div style={{ height: '350px', overflow: 'hidden', position: 'relative' }}>
-                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.3)', zIndex: 1 }}></div>
-                                <img src={proj.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                        </TiltCard>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        <h3 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>{proj.title}</h3>
-                        <div style={{ color: 'var(--accent)', fontFamily: 'monospace', marginBottom: '20px' }}>// {proj.sub}</div>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', lineHeight: 1.6 }}>{proj.desc}</p>
-                        <a href={proj.link} target="_blank" className="hud-btn" style={{ padding: '12px 30px', display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration:'none' }}>
-                            EXECUTE <ExternalLink size={16} />
-                        </a>
-                    </div>
-                </div>
-              ))}
-            </div>
-          </div>
-      </section>
-
-      {/* 4. CONTACT */}
-      <section id="contact" style={{ padding: '150px 0', textAlign: 'center' }}>
-        <div className="container" style={{ maxWidth: '700px' }}>
-          <TiltCard className="glass-panel">
-             <div style={{ padding: '60px' }}>
-                <h2 style={{ fontSize: '3rem', marginBottom: '20px' }}>LINK ESTABLISHED?</h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '40px' }}>
-                  Available for freelance contracts and full-time operations.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                  <a href="mailto:jashandeep20445@gmail.com" className="hud-btn" style={{ padding: '15px 40px', textDecoration:'none', display:'flex', gap:'10px' }}>
-                    <Mail size={20} /> SEND PACKET
-                  </a>
-                  <a href="https://linkedin.com/in/jashan23" target="_blank" className="hud-btn" style={{ padding: '15px 40px', textDecoration:'none', display:'flex', gap:'10px' }}>
-                    <Linkedin size={20} /> NETWORK
-                  </a>
-                </div>
+          {/* Avatar / Holo-Display */}
+          <motion.div 
+             initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+             style={{ flex: '1 1 300px', display: 'flex', justifyContent: 'center' }}
+          >
+             <div style={{ position: 'relative', width: '300px', height: '300px' }}>
+               <div style={{ position: 'absolute', inset: 0, border: '2px solid var(--accent)', borderRadius: '50%', borderStyle: 'dashed', animation: 'spin 10s linear infinite' }}></div>
+               <img src={me} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '5px solid var(--bg-color)' }} />
+               <div style={{ position: 'absolute', bottom: -20, left: '50%', transform: 'translateX(-50%)', background: 'var(--accent)', color: '#000', padding: '5px 15px', fontFamily: 'Orbitron', fontWeight: 'bold' }}>
+                  LVL. 23 DEV
+               </div>
              </div>
-          </TiltCard>
+          </motion.div>
+
+          {/* Intro Text */}
+          <motion.div 
+             initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+             style={{ flex: '1 1 400px' }}
+          >
+             <div className="level-badge">CLASS: FULL STACK</div>
+             <h1 className="glitch" data-text="JASHANDEEP" style={{ fontSize: '4rem', margin: '10px 0', lineHeight: 0.9 }}>
+               JASHANDEEP
+             </h1>
+             <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', fontFamily: 'monospace', marginBottom: '30px' }}>
+               > Initializing portfolio protocol...<br/>
+               > Loading assets: React, Node, Creative Design...<br/>
+               > Status: <span style={{ color: 'var(--accent)' }}>ONLINE</span>
+             </p>
+             
+             <div style={{ display: 'flex', gap: '15px' }}>
+                <a href="/resume.pdf" download className="hud-panel" style={{ padding: '10px 30px', cursor: 'pointer', textDecoration: 'none', color: 'var(--text-primary)', display:'flex', gap:'10px' }}>
+                   <Download size={18} /> SAVE_DATA (CV)
+                </a>
+             </div>
+          </motion.div>
         </div>
       </section>
 
-      <div style={{ textAlign: 'center', padding: '20px', color: '#555', fontFamily: 'monospace', fontSize: '0.8rem' }}>
-         SYSTEM VERSION 2.0 // DESIGNED BY JASHANDEEP
-      </div>
+      {/* --- SKILLS: ATTRIBUTES --- */}
+      <section style={{ padding: '100px 0' }}>
+         <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <h2 className="glitch" data-text="ATTRIBUTES" style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '50px', fontFamily: 'Orbitron' }}>ATTRIBUTES</h2>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' }}>
+               {skills.map((s, i) => (
+                  <motion.div 
+                    key={i}
+                    whileHover={{ scale: 1.1, borderColor: 'var(--accent)' }}
+                    className="hud-panel" 
+                    style={{ minWidth: '200px', textAlign: 'center' }}
+                  >
+                     <div style={{ color: 'var(--accent)', marginBottom: '10px' }}>{s.icon}</div>
+                     <div style={{ fontFamily: 'Orbitron', fontSize: '1.1rem' }}>{s.name}</div>
+                  </motion.div>
+               ))}
+            </div>
+         </div>
+      </section>
+
+      {/* --- PROJECTS: QUEST LOG --- */}
+      <section style={{ padding: '100px 0' }}>
+        <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 20px' }}>
+           <h2 className="glitch" data-text="QUEST LOG" style={{ fontSize: '3rem', marginBottom: '50px', fontFamily: 'Orbitron' }}>QUEST LOG</h2>
+           
+           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
+              {projects.map((p, i) => (
+                 <motion.div key={i} whileHover={{ y: -10 }} className="hud-panel" style={{ padding: 0, overflow: 'hidden' }}>
+                    <div style={{ height: '200px', overflow: 'hidden', borderBottom: '1px solid var(--glass-border)' }}>
+                       <img src={p.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <div style={{ padding: '20px' }}>
+                       <div className="level-badge" style={{ marginBottom: '10px' }}>COMPLETED</div>
+                       <h3 style={{ fontFamily: 'Orbitron', margin: '0 0 5px 0' }}>{p.title}</h3>
+                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '15px' }}>{p.sub}</p>
+                       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                          {p.tech.map(t => <span key={t} style={{ fontSize: '0.7rem', border: '1px solid #555', padding: '2px 8px' }}>{t}</span>)}
+                       </div>
+                       <a href={p.link} target="_blank" style={{ color: 'var(--accent)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                          LAUNCH <ExternalLink size={14} />
+                       </a>
+                    </div>
+                 </motion.div>
+              ))}
+           </div>
+        </div>
+      </section>
+
+      {/* --- EDUCATION: STORY MODE TIMELINE --- */}
+      <section style={{ padding: '100px 0', position: 'relative' }}>
+         <div className="container" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 20px' }}>
+            <h2 className="glitch" data-text="STORY MODE" style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px', fontFamily: 'Orbitron' }}>STORY MODE</h2>
+            
+            <div style={{ position: 'relative', borderLeft: '2px solid var(--glass-border)', paddingLeft: '50px' }}>
+               {education.map((edu, i) => (
+                  <motion.div 
+                     key={i}
+                     initial={{ opacity: 0, x: -50 }}
+                     whileInView={{ opacity: 1, x: 0 }}
+                     viewport={{ once: true }}
+                     style={{ marginBottom: '60px', position: 'relative' }}
+                  >
+                     {/* Node Dot */}
+                     <div style={{ position: 'absolute', left: '-59px', top: '0', width: '16px', height: '16px', background: 'var(--accent)', borderRadius: '50%', border: '4px solid var(--bg-color)', boxShadow: '0 0 10px var(--accent)' }}></div>
+                     
+                     <div className="hud-panel">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                           <span style={{ color: 'var(--accent)', fontFamily: 'Orbitron', fontSize: '1.2rem' }}>{edu.level}</span>
+                           <span style={{ fontFamily: 'monospace', opacity: 0.7 }}>{edu.year}</span>
+                        </div>
+                        <h3 style={{ margin: '0 0 5px 0', fontSize: '1.5rem' }}>{edu.title}</h3>
+                        <h4 style={{ margin: '0 0 15px 0', color: 'var(--text-secondary)', fontWeight: 'normal' }}>{edu.place}</h4>
+                        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderLeft: '3px solid var(--accent)' }}>
+                           <div style={{ fontWeight: 'bold' }}>{edu.stats}</div>
+                           <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>{edu.desc}</div>
+                        </div>
+                     </div>
+                  </motion.div>
+               ))}
+            </div>
+         </div>
+      </section>
+
+      {/* --- FOOTER: SYSTEM END --- */}
+      <footer style={{ borderTop: '1px solid var(--glass-border)', padding: '40px 0', textAlign: 'center', fontFamily: 'monospace', color: '#555' }}>
+         <div style={{ marginBottom: '10px' }}>END OF LINE_</div>
+         <div>DESIGNED BY JASHANDEEP // 2026</div>
+      </footer>
+
     </div>
   );
 }
-
-// Custom Cursor Logic
-const CustomCursor = () => {
-  const cursorRef = useRef(null);
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    if (!cursor) return;
-    const moveCursor = (e) => { cursor.style.left = `${e.clientX}px`; cursor.style.top = `${e.clientY}px`; };
-    window.addEventListener("mousemove", moveCursor);
-    return () => window.removeEventListener("mousemove", moveCursor);
-  }, []);
-  return <div ref={cursorRef} className="custom-cursor" />;
-};
 
 export default App;
