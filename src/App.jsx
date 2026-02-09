@@ -1,137 +1,165 @@
+/* --- App.jsx --- */
 import { useEffect, useState, useRef } from "react";
 import { 
-  motion, useScroll, useSpring, useTransform, useVelocity, AnimatePresence 
+  motion, useScroll, useSpring, useTransform, useVelocity, 
+  useMotionValue, useAnimationFrame, AnimatePresence 
 } from "framer-motion";
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
-  Database, Sun, Moon, Menu, X, Code2, Cpu, Globe, 
-  Zap, Layers, Terminal, Sparkles, Workflow, ArrowRight 
+  Terminal, Layers, Cpu, Zap, X, Menu, Play
 } from "lucide-react";
 
 import me from './me.jpg'; 
 
-// --- ANIMATION WRAPPER ---
-const FadeIn = ({ children, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.8, delay, ease: "easeOut" }}
-  >
-    {children}
-  </motion.div>
-);
-
-// --- OPTIMIZED CUSTOM CURSOR ---
-const CustomCursor = () => {
-  const cursorRef = useRef(null);
+// --- 1. THE HANGING ROPE LIGHT SWITCH ---
+const LightSwitch = ({ theme, toggleTheme }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const y = useMotionValue(0);
+  // Spring physics for the rope bounce
+  const springY = useSpring(y, { stiffness: 400, damping: 15 });
   
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    if (!cursor) return;
+  // Calculate rope length based on pull
+  const height = useTransform(springY, [0, 200], [80, 280]); 
 
-    const moveCursor = (e) => {
-      cursor.style.left = `${e.clientX}px`;
-      cursor.style.top = `${e.clientY}px`;
-    };
+  const handleDragEnd = (_, info) => {
+    setIsDragging(false);
+    if (info.offset.y > 100) {
+      toggleTheme();
+      // Play a click sound effect here if you have one
+    }
+    y.set(0); // Snap back
+  };
 
-    const addHover = () => cursor.classList.add("hovered");
-    const removeHover = () => cursor.classList.remove("hovered");
+  return (
+    <div style={{ position: 'fixed', top: 0, right: '8%', zIndex: 2000, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* The Rope Line */}
+      <motion.div 
+        style={{ 
+          width: '2px', 
+          height: height, 
+          background: 'var(--rope-color)',
+          transformOrigin: 'top center'
+        }} 
+      />
+      
+      {/* The Handle / Bulb */}
+      <motion.div
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 200 }}
+        dragElastic={0.1} // Makes it feel heavy
+        whileHover={{ scale: 1.1, cursor: 'grab' }}
+        whileTap={{ scale: 0.9, cursor: 'grabbing' }}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={handleDragEnd}
+        style={{ 
+          y: springY, 
+          width: '20px', 
+          height: '40px', 
+          borderRadius: '10px',
+          background: theme === 'dark' ? '#333' : '#fff',
+          border: '2px solid var(--accent)',
+          boxShadow: `0 0 ${isDragging ? 40 : 10}px var(--accent)`,
+          display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+          position: 'relative', top: '-2px'
+        }}
+      >
+          {/* Bulb filament */}
+          <div style={{ width: '4px', height: '8px', background: 'var(--accent)', marginBottom: '5px', borderRadius: '2px' }}></div>
+      </motion.div>
+    </div>
+  );
+};
 
-    window.addEventListener("mousemove", moveCursor);
-    document.querySelectorAll("a, button, .project-card, .glass-panel").forEach(el => {
-      el.addEventListener("mouseenter", addHover);
-      el.addEventListener("mouseleave", removeHover);
-    });
+// --- 2. 3D TILT CARD COMPONENT ---
+const TiltCard = ({ children, className }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const mouseX = useSpring(x, { stiffness: 150, damping: 15 });
+  const mouseY = useSpring(y, { stiffness: 150, damping: 15 });
 
-    return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      document.querySelectorAll("a, button, .project-card, .glass-panel").forEach(el => {
-        el.removeEventListener("mouseenter", addHover);
-        el.removeEventListener("mouseleave", removeHover);
-      });
-    };
-  }, []);
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-15deg", "15deg"]);
 
-  return <div ref={cursorRef} className="custom-cursor" />;
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseXFromCenter = e.clientX - rect.left - width / 2;
+    const mouseYFromCenter = e.clientY - rect.top - height / 2;
+    x.set(mouseXFromCenter / width);
+    y.set(mouseYFromCenter / height);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      style={{ perspective: 1000 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <motion.div
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className={className}
+      >
+        <div style={{ transform: "translateZ(50px)" }}>
+          {children}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 };
 
 // --- DATA ---
 const skillsData = [
-  { icon: <Terminal size={24} />, category: "Core Languages", skills: ["C", "C++", "Java", "Python", "JavaScript"] },
-  { icon: <Layers size={24} />, category: "Frontend", skills: ["React.js", "Tailwind CSS", "Framer Motion", "Vite"] },
-  { icon: <Cpu size={24} />, category: "Backend", skills: ["Node.js", "Express", "MongoDB", "REST APIs"] },
-  { icon: <Zap size={24} />, category: "Tools", skills: ["Git", "GitHub", "VS Code", "Postman", "Vercel"] }
+  { icon: <Terminal size={30} />, category: "Core Languages", skills: ["C", "C++", "Java", "Python", "JavaScript"] },
+  { icon: <Layers size={30} />, category: "Frontend", skills: ["React.js", "Tailwind CSS", "Framer Motion", "Vite"] },
+  { icon: <Cpu size={30} />, category: "Backend", skills: ["Node.js", "Express", "MongoDB", "REST APIs"] },
+  { icon: <Zap size={30} />, category: "Tools", skills: ["Git", "GitHub", "VS Code", "Postman", "Vercel"] }
 ];
 
 const projects = [
   {
-    title: "Vyom Clothing System",
-    sub: "Digital Fashion Store",
-    desc: "A premium black & white themed e-commerce experience. Features a minimalist UI, dynamic product cart, secure Stripe checkout, and a seamless shopping journey designed for modern brands.",
-    tech: ["React.js", "Commerce.js", "Stripe", "Minimal UI"],
+    title: "Vyom Clothing",
+    sub: "E-Commerce",
+    desc: "Premium fashion store with minimalist UI and Stripe integration.",
+    tech: ["React.js", "Commerce.js"],
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
-    img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop", 
-    themeClass: "vyom-theme"
+    img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop"
   },
   {
     title: "Story Verse",
-    sub: "The Reader's Companion",
-    desc: "A magical library management system. Track your reading progress, write chapter summaries, and rate your collection in an interface inspired by ancient archives.",
-    tech: ["MERN Stack", "MongoDB", "JWT Auth", "Book API"],
+    sub: "Library System",
+    desc: "Magical library management to track progress and write summaries.",
+    tech: ["MERN Stack", "MongoDB"],
     link: "https://reading-tracker-system1-vkbm.vercel.app/",
-    img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop",
-    themeClass: "hp-theme"
+    img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop"
   },
   {
-    title: "Business Card Generator",
-    sub: "Professional Identity Suite",
-    desc: "Create vibrant, professional digital identities in seconds. Features real-time customization, QR code integration, and instant PDF export for the modern professional.",
-    tech: ["React + Vite", "Tailwind", "QR Code", "Canvas API"],
+    title: "ID Generator",
+    sub: "Identity Suite",
+    desc: "Generate professional business cards with QR codes instantly.",
+    tech: ["React", "Canvas API"],
     link: "https://business-card-generator-mddw.vercel.app/",
-    img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1000&auto=format&fit=crop",
-    themeClass: "" 
+    img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1000&auto=format&fit=crop"
   }
 ];
 
-const certifications = [
-  { name: "Interpersonal Communication", issuer: "Rice University", date: "Jan 2026", img: "/cert1.jpg" },
-  { name: "Generative AI Master", issuer: "Infosys Springboard", date: "Aug 2025", img: "/cert2.jpg" },
-  { name: "Computational Theory", issuer: "Infosys Springboard", date: "Aug 2025", img: "/cert3.jpg" }
-];
-
-const education = [
-  { school: "Lovely Professional University", degree: "B.Tech CSE (Full Stack)", year: "2023 - Present", score: "CGPA: 6.8" },
-  { school: "Dr. Asanand Arya Model School", degree: "Senior Secondary (12th)", year: "2022", score: "88.6%" },
-  { school: "St. Joseph's Convent School", degree: "Matriculation (10th)", year: "2021", score: "83.8%" }
-];
-
-// --- SCROLL VELOCITY COMPONENT ---
-const ScrollVelocity = ({ children }) => {
-  const { scrollY } = useScroll();
-  const scrollVelocity = useVelocity(scrollY);
-  const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
-  const skew = useTransform(smoothVelocity, [-1000, 1000], [-2, 2]); 
-  return <motion.div style={{ skewY: skew }}>{children}</motion.div>;
-};
-
+// --- APP COMPONENT ---
 function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState("dark");
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  
-  const [text, setText] = useState("");
-  const fullText = "Full Stack Developer.";
+  const [menuOpen, setMenuOpen] = useState(false);
 
+  // Initial System Boot Sequence
   useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      setText(fullText.slice(0, i + 1));
-      i++;
-      if (i > fullText.length) clearInterval(interval);
-    }, 100);
-    return () => clearInterval(interval);
+    setTimeout(() => setLoading(false), 2000);
   }, []);
 
   useEffect(() => {
@@ -146,264 +174,178 @@ function App() {
     setMenuOpen(false);
   };
 
+  if (loading) return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#000', color: '#00ff9d', fontFamily: 'monospace' }}>
+      <motion.div 
+        animate={{ rotate: 360 }} 
+        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        style={{ width: '50px', height: '50px', border: '4px solid #00ff9d', borderTop: '4px solid transparent', borderRadius: '50%', marginBottom: '20px' }}
+      />
+      <h2>INITIALIZING SYSTEM...</h2>
+      <p>LOADING ASSETS_</p>
+    </div>
+  );
+
   return (
     <div className="app">
-      <CustomCursor />
-      <div className="noise-overlay"></div>
+      {/* GLOBAL UI ELEMENTS */}
+      <div className="grid-bg"></div>
+      <div className="vignette"></div>
+      <div className="scanlines"></div>
+      <LightSwitch theme={theme} toggleTheme={toggleTheme} />
 
-      {/* Progress Bar */}
+      {/* CUSTOM CURSOR */}
+      <CustomCursor />
+
+      {/* SCROLL PROGRESS */}
       <motion.div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--accent)', scaleX, transformOrigin: "0%", zIndex: 2000 }} />
 
-      {/* NAVBAR */}
+      {/* HUD NAVBAR */}
       <motion.nav 
         initial={{ y: -100 }} animate={{ y: 0 }}
         style={{ 
           position: 'fixed', width: '100%', height: '80px', zIndex: 100, 
-          backdropFilter: 'blur(20px)', background: 'rgba(0,0,0,0.01)', borderBottom: '1px solid var(--glass-border)',
+          backdropFilter: 'blur(10px)', borderBottom: '1px solid var(--glass-border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5%'
         }}
       >
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 900 }}>Jashandeep<span className="gradient-text">.</span></h2>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px'}}>
+           <Terminal size={24} color="var(--accent)"/>
+           <h2 style={{ fontSize: '1.5rem', fontWeight: 900, margin:0 }}>Jashan<span style={{color:'var(--accent)'}}>.dev</span></h2>
+        </div>
         
-        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-          {['About', 'Skills', 'Projects', 'Timeline', 'Contact'].map(item => (
-            <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '0.95rem', cursor: 'pointer', fontWeight: 600 }}>
-              {item}
+        <div className="desktop-nav" style={{ display: 'flex', gap: '30px' }}>
+          {['About', 'Skills', 'Projects', 'Contact'].map(item => (
+            <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', cursor: 'pointer', fontFamily:'Space Grotesk', textTransform:'uppercase' }}>
+              [{item}]
             </button>
           ))}
-          <button onClick={toggleTheme} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}>
-             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
         </div>
-
-        <button onClick={() => setMenuOpen(!menuOpen)} className="mobile-nav" style={{ display:'none', background: 'none', border: 'none', color: 'var(--text-primary)' }}>
-           {menuOpen ? <X/> : <Menu/>}
-        </button>
-
-        {menuOpen && (
-          <div style={{ position: 'absolute', top: '80px', left: 0, width: '100%', background: 'var(--bg-color)', padding: '20px', borderBottom: '1px solid var(--glass-border)' }}>
-             {['About', 'Skills', 'Projects', 'Timeline', 'Contact'].map(item => (
-                <button key={item} onClick={() => scrollTo(item.toLowerCase())} style={{ display: 'block', width: '100%', padding: '15px 0', background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.2rem', textAlign: 'left' }}>{item}</button>
-             ))}
-          </div>
-        )}
       </motion.nav>
 
       {/* 1. HERO SECTION */}
-      <section id="about" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingTop: '80px' }}>
+      <section id="about" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', paddingTop: '80px', position: 'relative' }}>
         <div className="container">
-          <motion.div 
-             initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 1.5 }}
-             style={{ width: '250px', height: '250px', margin: '0 auto 40px', position: 'relative' }}
-          >
-             <div style={{ position: 'absolute', inset: -20, borderRadius: '50%', background: 'var(--accent)', opacity: 0.15, filter: 'blur(40px)', animation: 'pulse 3s infinite' }}></div>
-             <img src={me} alt="Jashandeep" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--bg-color)', position: 'relative' }} />
-          </motion.div>
+          <TiltCard className="glass-panel" style={{ display: 'inline-block', borderRadius: '50%', padding: '10px', background: 'transparent', border: 'none' }}>
+             <motion.div 
+               initial={{ scale: 0 }} animate={{ scale: 1 }}
+               style={{ width: '250px', height: '250px', borderRadius: '50%', border: '4px solid var(--accent)', padding: '5px', position: 'relative' }}
+             >
+                <div style={{ position: 'absolute', inset: 0, border: '1px dashed var(--accent)', borderRadius: '50%', animation: 'spin 10s linear infinite' }}></div>
+                <img src={me} alt="Jashandeep" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', filter: 'grayscale(100%) contrast(1.2)' }} />
+             </motion.div>
+          </TiltCard>
           
-          <h1 style={{ fontSize: 'clamp(3rem, 5vw, 6rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}>
-            I am a <span className="gradient-text">{text}</span>
+          <h1 style={{ fontSize: 'clamp(3rem, 6vw, 7rem)', margin: '30px 0', lineHeight: 0.9 }}>
+            FULL STACK <br/> <span className="gradient-text">OPERATOR</span>
           </h1>
           
-          <FadeIn delay={0.5}>
-            <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 50px' }}>
-              Transforming ideas into scalable, high-performance web applications.
-            </p>
-          </FadeIn>
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 40px', fontFamily: 'monospace' }}>
+             // SYSTEM STATUS: ONLINE <br/>
+             // MISSION: TRANSFORMING IDEAS INTO SCALABLE APPLICATIONS
+          </p>
           
-          <FadeIn delay={0.8}>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-              <a href="/resume.pdf" download style={{ textDecoration: 'none' }}>
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  style={{ padding: '18px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-                >
-                  <Download size={20} /> Download CV
-                </motion.button>
-              </a>
-            </div>
-          </FadeIn>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+             <a href="/resume.pdf" download className="hud-btn" style={{ padding: '15px 40px', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Download size={18} /> Initialize CV
+             </a>
+          </div>
         </div>
       </section>
 
-      {/* 2. SKILLS */}
-      <section id="skills" style={{ padding: '150px 0' }}>
+      {/* 2. SKILLS GRID */}
+      <section id="skills" style={{ padding: '100px 0' }}>
         <div className="container">
-          <FadeIn>
-            <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>Technical Arsenal</h2>
-          </FadeIn>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
+          <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>:: ARMORY ::</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
             {skillsData.map((cat, i) => (
-              <FadeIn key={i} delay={i * 0.1}>
-                <div className="glass-panel" style={{ padding: '40px' }}>
-                  <div style={{ color: 'var(--accent)', marginBottom: '20px' }}>{cat.icon}</div>
-                  <h3 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>{cat.category}</h3>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                    {cat.skills.map(skill => (
-                      <span key={skill} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '8px', fontSize: '0.9rem' }}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </FadeIn>
+              <TiltCard key={i} className="glass-panel" style={{ padding: '0' }}>
+                 <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    <div style={{ color: 'var(--accent)', marginBottom: '20px' }}>{cat.icon}</div>
+                    <h3 style={{ fontSize: '1.4rem', marginBottom: '20px' }}>{cat.category}</h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {cat.skills.map(skill => (
+                        <span key={skill} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                 </div>
+              </TiltCard>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. WORKFLOW */}
-      <section style={{ padding: '150px 0' }}>
-        <div className="container">
-          <FadeIn>
-            <h2 style={{ fontSize: '3rem', marginBottom: '80px', textAlign: 'center' }}>My Workflow</h2>
-          </FadeIn>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', justifyContent: 'center' }}>
-            {[
-              { title: "Discover", desc: "Understanding the problem statement and requirements." },
-              { title: "Design", desc: "Prototyping and architecture planning." },
-              { title: "Develop", desc: "Clean coding with modern best practices." },
-              { title: "Deploy", desc: "CI/CD integration and cloud hosting." }
-            ].map((step, i) => (
-              <FadeIn key={i} delay={i * 0.15}>
-                <div className="glass-panel" style={{ width: '250px', padding: '30px', textAlign: 'center' }}>
-                  <div style={{ width: '50px', height: '50px', background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontWeight: 'bold' }}>{i+1}</div>
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: '10px' }}>{step.title}</h3>
-                  <p style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. PROJECTS */}
-      <ScrollVelocity>
-        <section id="projects" style={{ padding: '150px 0' }}>
+      {/* 3. PROJECTS DECK */}
+      <section id="projects" style={{ padding: '100px 0' }}>
           <div className="container">
-            <FadeIn>
-              <h2 style={{ fontSize: '3rem', marginBottom: '100px', textAlign: 'center' }}>Featured Works</h2>
-            </FadeIn>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '150px' }}>
+            <h2 style={{ fontSize: '3rem', marginBottom: '100px', textAlign: 'center' }}>:: MISSIONS ::</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '100px' }}>
               {projects.map((proj, i) => (
-                <FadeIn key={i}>
-                  <div 
-                    className="project-layout"
-                    style={{ display: 'flex', flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', gap: '60px', alignItems: 'center' }}
-                  >
-                    <div style={{ flex: 1, width: '100%' }}>
-                      <div className={`glass-panel ${proj.themeClass}`} style={{ overflow: 'hidden', padding: '0', height: '400px' }}>
-                         <img src={proj.img} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} />
-                      </div>
+                <div key={i} style={{ display: 'flex', flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', gap: '50px', alignItems: 'center' }}>
+                    <div style={{ flex: 1.5 }}>
+                        <TiltCard className="glass-panel" style={{ padding: 0 }}>
+                            <div style={{ height: '350px', overflow: 'hidden', position: 'relative' }}>
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.3)', zIndex: 1 }}></div>
+                                <img src={proj.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                        </TiltCard>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <h3 style={{ fontSize: '2.8rem', marginBottom: '15px' }}>{proj.title}</h3>
-                      <h4 style={{ color: 'var(--accent)', fontSize: '1.3rem', marginBottom: '25px', fontWeight: '600' }}>{proj.sub}</h4>
-                      <p style={{ color: 'var(--text-secondary)', marginBottom: '35px', lineHeight: 1.7, fontSize: '1.15rem' }}>{proj.desc}</p>
-                      
-                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '45px' }}>
-                        {proj.tech.map(t => (
-                          <span key={t} style={{ border: '1px solid var(--glass-border)', padding: '8px 18px', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 600 }}>{t}</span>
-                        ))}
-                      </div>
-                      
-                      <a href={proj.link} target="_blank" style={{ textDecoration: 'none' }}>
-                        <motion.button 
-                          whileHover={{ scale: 1.05 }}
-                          style={{ background: 'var(--text-primary)', color: 'var(--bg-color)', padding: '16px 35px', borderRadius: '50px', border: 'none', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
-                        >
-                          Visit Live Site <ExternalLink size={20} />
-                        </motion.button>
-                      </a>
+                        <h3 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>{proj.title}</h3>
+                        <div style={{ color: 'var(--accent)', fontFamily: 'monospace', marginBottom: '20px' }}>// {proj.sub}</div>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', lineHeight: 1.6 }}>{proj.desc}</p>
+                        <a href={proj.link} target="_blank" className="hud-btn" style={{ padding: '12px 30px', display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration:'none' }}>
+                            EXECUTE <ExternalLink size={16} />
+                        </a>
                     </div>
-                  </div>
-                </FadeIn>
+                </div>
               ))}
             </div>
           </div>
-        </section>
-      </ScrollVelocity>
-
-      {/* 5. CERTIFICATES */}
-      <section id="education" style={{ padding: '100px 0' }}>
-         <FadeIn>
-           <h2 style={{ fontSize: '3rem', marginBottom: '60px', textAlign: 'center' }}>Certifications</h2>
-         </FadeIn>
-         <div className="marquee-container">
-            <div className="marquee-track">
-               {[...certifications, ...certifications, ...certifications, ...certifications].map((cert, i) => (
-                 <div key={i} className="glass-panel" style={{ minWidth: '500px', overflow: 'hidden', flexShrink: 0, padding: 0 }}>
-                    <div style={{ height: '300px', background: '#000', overflow: 'hidden' }}>
-                       <img src={cert.img} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
-                    <div style={{ padding: '30px' }}>
-                       <h3 style={{ margin: '0 0 5px 0', fontSize: '1.5rem' }}>{cert.name}</h3>
-                       <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>{cert.issuer}</p>
-                    </div>
-                 </div>
-               ))}
-            </div>
-         </div>
       </section>
 
-      {/* 6. TIMELINE */}
-      <section id="timeline" style={{ padding: '150px 0' }}>
-        <div className="container" style={{ maxWidth: '900px', position: 'relative' }}>
-          <FadeIn>
-            <h2 style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px' }}>Academic Journey</h2>
-          </FadeIn>
-          <div className="timeline-line"></div>
-          {education.map((edu, i) => (
-            <FadeIn key={i}>
-              <div 
-                style={{ display: 'flex', justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-end', marginBottom: '60px', position: 'relative' }}
-              >
-                <div className="timeline-dot" style={{ position: 'absolute', left: '50%', top: '0', transform: 'translate(-50%, 0)', zIndex: 10, width:'20px', height:'20px', background:'var(--accent)', borderRadius:'50%', border:'4px solid var(--bg-color)' }}></div>
-                <div className="glass-panel" style={{ width: '45%', padding: '35px' }}>
-                  <span style={{ color: 'var(--accent)', fontWeight: 'bold', fontSize: '0.9rem' }}>{edu.year}</span>
-                  <h3 style={{ fontSize: '1.5rem', margin: '10px 0' }}>{edu.school}</h3>
-                  <h4 style={{ opacity: 0.8, fontSize: '1.1rem', fontWeight: 'normal' }}>{edu.degree}</h4>
-                  <div style={{ marginTop: '15px', fontWeight: '800', fontSize: '1.1rem' }}>{edu.score}</div>
+      {/* 4. CONTACT */}
+      <section id="contact" style={{ padding: '150px 0', textAlign: 'center' }}>
+        <div className="container" style={{ maxWidth: '700px' }}>
+          <TiltCard className="glass-panel">
+             <div style={{ padding: '60px' }}>
+                <h2 style={{ fontSize: '3rem', marginBottom: '20px' }}>LINK ESTABLISHED?</h2>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '40px' }}>
+                  Available for freelance contracts and full-time operations.
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                  <a href="mailto:jashandeep20445@gmail.com" className="hud-btn" style={{ padding: '15px 40px', textDecoration:'none', display:'flex', gap:'10px' }}>
+                    <Mail size={20} /> SEND PACKET
+                  </a>
+                  <a href="https://linkedin.com/in/jashan23" target="_blank" className="hud-btn" style={{ padding: '15px 40px', textDecoration:'none', display:'flex', gap:'10px' }}>
+                    <Linkedin size={20} /> NETWORK
+                  </a>
                 </div>
-              </div>
-            </FadeIn>
-          ))}
+             </div>
+          </TiltCard>
         </div>
       </section>
 
-      {/* 7. CONTACT */}
-      <section id="contact" style={{ padding: '150px 0' }}>
-        <div className="container" style={{ textAlign: 'center', maxWidth: '800px' }}>
-          <FadeIn>
-            <div className="glass-panel" style={{ padding: '80px 40px' }}>
-              <h2 style={{ fontSize: '3.5rem', marginBottom: '20px' }}>Let's Build Something.</h2>
-              <p style={{ fontSize: '1.3rem', color: 'var(--text-secondary)', marginBottom: '50px' }}>
-                I am currently available for full-time roles and freelance projects.
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-                <a href="mailto:jashandeep20445@gmail.com" style={{ textDecoration: 'none' }}>
-                  <motion.button 
-                    whileHover={{ scale: 1.05 }}
-                    style={{ padding: '20px 45px', borderRadius: '50px', background: 'var(--accent)', color: '#fff', border: 'none', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}
-                  >
-                    <Mail size={22} /> Email Me
-                  </motion.button>
-                </a>
-                <a href="https://linkedin.com/in/jashan23" target="_blank" style={{ textDecoration: 'none' }}>
-                   <motion.button 
-                     whileHover={{ scale: 1.05 }}
-                     style={{ padding: '20px 45px', borderRadius: '50px', background: 'transparent', color: 'var(--text-primary)', border: '2px solid var(--text-primary)', fontSize: '1.1rem', fontWeight: 'bold', display:'flex', gap:'10px', alignItems:'center', cursor: 'pointer' }}
-                   >
-                    <Linkedin size={22} /> LinkedIn
-                  </motion.button>
-                </a>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-      
+      <div style={{ textAlign: 'center', padding: '20px', color: '#555', fontFamily: 'monospace', fontSize: '0.8rem' }}>
+         SYSTEM VERSION 2.0 // DESIGNED BY JASHANDEEP
+      </div>
     </div>
   );
 }
+
+// Custom Cursor Logic
+const CustomCursor = () => {
+  const cursorRef = useRef(null);
+  useEffect(() => {
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+    const moveCursor = (e) => { cursor.style.left = `${e.clientX}px`; cursor.style.top = `${e.clientY}px`; };
+    window.addEventListener("mousemove", moveCursor);
+    return () => window.removeEventListener("mousemove", moveCursor);
+  }, []);
+  return <div ref={cursorRef} className="custom-cursor" />;
+};
 
 export default App;
