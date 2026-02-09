@@ -1,264 +1,254 @@
-import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { 
-  Download, ExternalLink, Mail, Linkedin, Github, 
-  Terminal, Database, Cpu, Skull, Map, Crosshair, Scroll
+  ArrowUpRight, Download, Mail, Linkedin, ChevronDown, 
+  Code, Cpu, Globe, Award 
 } from "lucide-react";
 import './App.css';
 import me from './me.jpg'; 
 
-// --- DATA FROM YOUR FILES ---
+// --- DATA ---
 const projects = [
   {
     title: "Vyom Clothing",
-    type: "E-Commerce Frontier",
-    desc: "A premium outpost for fashion. Features dynamic trading (cart), secure Stripe bounties, and Commerce.js integration.",
-    tech: ["React.js", "Commerce.js", "Stripe"],
+    role: "Full Stack Commerce",
+    desc: "A premium fashion e-commerce platform. Engineered with dynamic cart states, secure Stripe payment gateways, and Commerce.js for inventory management.",
+    tech: ["React", "Stripe", "Commerce.js"],
     link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
     image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800"
   },
   {
     title: "Story Verse",
-    type: "The Archive",
-    desc: "A journal for your tales. Track reading progress, write chapter summaries, and chronicle your book collection.",
-    tech: ["MongoDB", "Express", "React", "Node.js"],
+    role: "Library Architecture",
+    desc: "A sophisticated digital library assistant. Allows users to track reading metrics, author chapter summaries, and manage a personal book archive.",
+    tech: ["MongoDB", "Express", "Node.js"],
     link: "https://reading-tracker-system1-vkbm.vercel.app/",
     image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=800"
   },
   {
     title: "Biz-ID Generator",
-    type: "Identification",
-    desc: "Forge new identities. Create professional digital papers in seconds using Canvas API and instant PDF export.",
+    role: "Digital Tooling",
+    desc: "Professional identity generation tool. Leverages Canvas API for real-time rendering and PDF generation of business credentials.",
     tech: ["React", "Vite", "Canvas API"],
     link: "https://business-card-generator-mddw.vercel.app/",
     image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&q=80&w=800"
   }
 ];
 
+const certificates = [
+  "Full Stack Development", "Data Structures & Algorithms", "React Advanced Patterns", 
+  "Backend Architecture", "System Design", "UI/UX Fundamentals", "Database Management"
+];
+
 const education = [
-  { school: "Lovely Professional University", degree: "B.Tech CSE", year: "2023 - Present", score: "CGPA: 6.8" },
+  { school: "Lovely Professional University", degree: "B.Tech Computer Science", year: "2023 - Present", score: "CGPA: 6.8" },
   { school: "Dr. Asanand Arya Model School", degree: "Senior Secondary", year: "2022", score: "88.6%" },
   { school: "St. Joseph's Convent School", degree: "Matriculation", year: "2021", score: "83.8%" }
 ];
 
-const skills = [
-  { category: "Languages", icon: <Terminal size={20}/>, list: "Java, C++, JavaScript, Python" },
-  { category: "Frontend", icon: <Map size={20}/>, list: "React.js, Tailwind, HTML5, Framer Motion" },
-  { category: "Backend", icon: <Cpu size={20}/>, list: "Node.js, Express, REST APIs" },
-  { category: "Database", icon: <Database size={20}/>, list: "MongoDB, MySQL, Git" }
-];
+// --- COMPONENTS ---
 
-// --- ANIMATION VARIANTS ---
-const revealVariant = {
-  hidden: { opacity: 0, scale: 0.8, filter: "blur(10px)" },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
-    filter: "blur(0px)",
-    transition: { duration: 0.8, ease: "easeOut" } 
-  }
+// 1. Dust Particle System
+const DustParticles = () => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden h-full">
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="dust"
+          initial={{ 
+            x: Math.random() * window.innerWidth, 
+            y: Math.random() * window.innerHeight, 
+            opacity: 0 
+          }}
+          animate={{ 
+            y: [null, Math.random() * -100], 
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{ 
+            duration: Math.random() * 10 + 5, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+        />
+      ))}
+    </div>
+  );
 };
 
-const posterVariant = {
-  hidden: { rotate: -10, opacity: 0, y: 100 },
-  visible: { 
-    rotate: -2, 
-    opacity: 1, 
-    y: 0, 
-    transition: { type: "spring", bounce: 0.4, duration: 1.2 } 
-  }
+// 2. Infinite Scroll Marquee
+const Marquee = () => {
+  return (
+    <div className="marquee-container">
+      <div className="marquee-content">
+        {[...certificates, ...certificates, ...certificates].map((cert, i) => (
+          <div key={i} className="cert-item">
+            <Award size={18} color="#cfa76e" /> {cert}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 function App() {
   const { scrollYProgress } = useScroll();
-  const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]); // Parallax
+  const yHero = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const opacityHero = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
     <div className="app">
-      {/* ATMOSPHERE LAYERS */}
-      <div className="grain-overlay"></div>
+      <div className="noise-overlay"></div>
       <div className="vignette"></div>
 
-      {/* HERO SECTION */}
-      <header className="hero-section">
-        <motion.div style={{ y: yBg }} className="hero-bg-layer" />
+      {/* HERO */}
+      <section className="hero">
+        <motion.div style={{ y: yHero, opacity: opacityHero }} className="hero-bg" />
+        <DustParticles />
         
         <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={revealVariant}
-          className="hero-content"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          style={{ zIndex: 10 }}
         >
-          <div style={{display:'flex', justifyContent:'center', gap:'1rem', marginBottom:'1rem'}}>
-            <Skull size={32} color="#8a0303" />
-            <Skull size={32} color="#8a0303" />
-          </div>
-          <h1 className="hero-title">Jashandeep</h1>
-          <p className="hero-subtitle">FULL STACK OUTLAW</p>
-          <p className="typewriter" style={{marginTop:'1rem', color:'#d4c5a9'}}>
-            // Building digital experiences that matter
-          </p>
-
-          <div style={{ marginTop: '40px', display: 'flex', gap: '20px', justifyContent: 'center' }}>
-             <a href="#bounties" className="btn-western btn-primary-red">
-               See Bounties <Crosshair size={18} />
-             </a>
-             <a href="/resume.pdf" download className="btn-western">
-               Dossier (CV) <Download size={18} />
-             </a>
-          </div>
-        </motion.div>
-      </header>
-
-      {/* WANTED SECTION (ABOUT) */}
-      <section id="about" style={{ background: '#121212' }}>
-        <div className="grid" style={{ alignItems: 'center' }}>
+          <p>Jashandeep</p>
+          <h1>Full Stack<br/>Developer</h1>
           
           <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={posterVariant}
-            className="wanted-poster"
+            initial={{ width: 0 }}
+            animate={{ width: "100px" }}
+            transition={{ delay: 1, duration: 1 }}
+            style={{ height: '2px', background: '#9e1b1b', margin: '20px auto' }}
+          />
+
+          <p style={{ fontSize: '0.9rem', color: '#8c857b', maxWidth: '400px', margin: '0 auto', lineHeight: '1.6' }}>
+            Specializing in scalable web architecture and pixel-perfect interactive experiences.
+          </p>
+        </motion.div>
+
+        <motion.div 
+          className="absolute bottom-10"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          <ChevronDown color="#cfa76e" size={30} />
+        </motion.div>
+      </section>
+
+      {/* INFINITE SCROLL */}
+      <Marquee />
+
+      {/* ABOUT / PROFILE */}
+      <section id="profile">
+        <div className="grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            <h2 className="wanted-header">WANTED</h2>
-            <img src={me} alt="Jashandeep" className="poster-img" />
-            <p className="typewriter" style={{fontSize:'1.2rem', fontWeight:'bold'}}>
-              DEAD OR ALIVE
-            </p>
-            <p style={{marginTop:'10px', fontSize:'0.9rem', fontStyle:'italic'}}>
-              For crimes of exceptional coding and pixel-perfect design.
-            </p>
+            <img src={me} alt="Profile" style={{ width: '100%', borderRadius: '4px', filter: 'sepia(20%)' }} />
           </motion.div>
 
-          <div style={{ padding: '0 40px' }}>
-            <h2 className="section-header" style={{textAlign:'left'}}>The Drifter's Story</h2>
-            <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#ccc' }}>
-              Howdy. I'm Jashandeep. I ride through the valley of the MERN stack, building accessible and performant web applications. 
-              From the front-end deserts of <span style={{color: '#cda85d'}}>React</span> to the back-end mountains of <span style={{color: '#cda85d'}}>Node.js</span>, 
-              I've honed my skills to deliver quality software.
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="section-title" style={{ fontSize: '2.5rem', marginBottom: '30px' }}>
+              Engineering <br/><span style={{ color: '#cfa76e' }}>Digital Solutions</span>
+            </h2>
+            <p className="serif-text" style={{ fontSize: '1.1rem', color: '#ccc', lineHeight: '1.8', marginBottom: '30px' }}>
+              I am a student at Lovely Professional University, driven by a passion for complex problem solving and system architecture. My approach combines the raw efficiency of backend logic with the elegance of modern frontend frameworks.
             </p>
-            <br/>
-            <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#ccc' }}>
-              Currently stationed at <strong>Lovely Professional University</strong>, sharpening my aim in Computer Science.
-            </p>
-          </div>
-
-        </div>
-      </section>
-
-      {/* SKILLS (ARSENAL) */}
-      <section id="arsenal" style={{ background: '#0f0f0f' }}>
-        <div className="section-header">
-          <h2>The Arsenal</h2>
-          <p className="typewriter" style={{color:'#888'}}>Tools of the Trade</p>
-        </div>
-
-        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-          {skills.map((s, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="ammo-box"
-            >
-              <div style={{color: '#cda85d'}}>{s.icon}</div>
-              <div>
-                <h3 style={{fontSize:'1.1rem', color:'#fff'}}>{s.category}</h3>
-                <p style={{fontSize:'0.85rem', color:'#aaa'}}>{s.list}</p>
+            <div style={{ display: 'flex', gap: '20px' }}>
+              <div style={{ padding: '20px', background: '#111', border: '1px solid #333' }}>
+                <Code color="#cfa76e" size={24} />
+                <h4 style={{ marginTop: '10px' }}>Frontend</h4>
+                <p style={{ fontSize: '0.8rem', color: '#777', marginTop: '5px' }}>React, Tailwind, Framer</p>
               </div>
-            </motion.div>
-          ))}
+              <div style={{ padding: '20px', background: '#111', border: '1px solid #333' }}>
+                <Cpu color="#cfa76e" size={24} />
+                <h4 style={{ marginTop: '10px' }}>Backend</h4>
+                <p style={{ fontSize: '0.8rem', color: '#777', marginTop: '5px' }}>Node, Express, Mongo</p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* PROJECTS (BOUNTIES) */}
-      <section id="bounties" style={{ background: '#141414' }}>
-        <div className="section-header">
-          <h2>Bounties Collected</h2>
-          <p className="typewriter" style={{color:'#888'}}>Past Missions & Heists</p>
-        </div>
-
-        <div className="bounty-grid">
+      {/* PROJECTS */}
+      <section id="work">
+        <h2 className="section-title">Selected Works <div className="line"></div></h2>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
           {projects.map((p, i) => (
             <motion.div 
               key={i}
+              className="project-card"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.2 }}
-              className="bounty-card"
+              transition={{ delay: i * 0.1, duration: 0.6 }}
             >
-              <div className="bounty-img-container">
-                <img src={p.image} alt={p.title} className="bounty-img" />
+              <div style={{ overflow: 'hidden' }}>
+                <img src={p.image} alt={p.title} className="project-image" />
               </div>
-              <div className="bounty-content">
-                <div style={{display:'flex', justifyContent:'space-between'}}>
-                  <h3 style={{fontSize:'1.4rem'}}>{p.title}</h3>
-                  <span style={{color:'#888', fontSize:'0.8rem'}}>{p.type}</span>
+              <div style={{ padding: '30px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                  <h3 style={{ fontSize: '1.4rem' }}>{p.title}</h3>
+                  <a href={p.link} target="_blank" style={{ color: '#cfa76e' }}><ArrowUpRight size={20} /></a>
                 </div>
-                <p style={{color:'#aaa', margin:'15px 0', fontSize:'0.9rem'}}>
-                  {p.desc}
-                </p>
-                <div style={{display:'flex', gap:'5px', flexWrap:'wrap'}}>
-                  {p.tech.map(t => (
-                    <span key={t} style={{background:'#333', padding:'2px 8px', fontSize:'0.7rem', borderRadius:'4px'}}>{t}</span>
-                  ))}
+                <p style={{ color: '#8c857b', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '20px' }}>{p.desc}</p>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  {p.tech.map(t => <span key={t} className="tech-tag">{t}</span>)}
                 </div>
-                <div className="reward-text">$ REWARD: EXPERIENCE</div>
-                <a href={p.link} target="_blank" className="btn-western" style={{width:'100%', justifyContent:'center', marginTop:'20px', fontSize:'0.8rem'}}>
-                  Inspect Work <ExternalLink size={14}/>
-                </a>
               </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* EDUCATION (JOURNAL) */}
-      <section id="journal" style={{ 
-        background: `url("https://www.transparenttextures.com/patterns/aged-paper.png"), #e3dac9`,
-        color: '#2b2b2b'
-      }}>
-        <div className="section-header">
-          <h2 style={{color: '#2b2b2b'}}>Education Journal</h2>
-          <Scroll color="#2b2b2b" size={32} style={{margin:'0 auto'}}/>
-        </div>
-
-        <div style={{ maxWidth: '800px', margin: '0 auto', borderLeft: '2px solid #8a0303', paddingLeft: '30px' }}>
+      {/* EDUCATION */}
+      <section id="education" style={{ background: '#080808' }}>
+        <h2 className="section-title">Academic History <div className="line"></div></h2>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           {education.map((edu, i) => (
             <motion.div 
               key={i}
-              initial={{ opacity: 0, x: -20 }}
+              className="timeline-item"
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              className="timeline-item" 
-              style={{ marginBottom: '40px', position: 'relative' }}
+              viewport={{ once: true }}
             >
-              <div style={{ 
-                position:'absolute', left:'-39px', top:'0', 
-                width:'16px', height:'16px', background:'#8a0303', borderRadius:'50%' 
-              }}></div>
-              <div style={{ fontFamily: 'Rye', fontSize: '1.2rem', color: '#8a0303' }}>{edu.year}</div>
-              <h3 style={{ fontSize: '1.5rem', fontFamily: 'Cinzel', fontWeight: 'bold' }}>{edu.degree}</h3>
-              <p style={{ fontSize: '1.1rem', fontStyle: 'italic' }}>{edu.school}</p>
-              <p style={{ fontWeight: 'bold' }}>{edu.score}</p>
+              <div className="timeline-dot"></div>
+              <span style={{ color: '#9e1b1b', fontFamily: 'Cinzel', fontWeight: 'bold' }}>{edu.year}</span>
+              <h3 style={{ fontSize: '1.5rem', marginTop: '5px', color: '#fff' }}>{edu.degree}</h3>
+              <p style={{ color: '#8c857b', fontStyle: 'italic' }}>{edu.school}</p>
+              <p style={{ marginTop: '10px', fontSize: '0.9rem', border: '1px solid #333', display: 'inline-block', padding: '5px 10px' }}>
+                {edu.score}
+              </p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer style={{ padding: '60px 0', textAlign: 'center', background: '#0a0a0a', borderTop: '1px solid #333' }}>
-        <h2 style={{ marginBottom: '20px' }}>Ride With Me?</h2>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '40px' }}>
-          <a href="mailto:jashandeep20445@gmail.com" className="btn-western">
-            <Mail size={18} /> Send Telegram
+      <footer style={{ padding: '80px 0', borderTop: '1px solid #222', textAlign: 'center' }}>
+        <h2 style={{ fontSize: '3rem', marginBottom: '40px' }}>Ready to Collaborate?</h2>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '30px' }}>
+          <a href="mailto:jashandeep20445@gmail.com" className="btn-gold">
+            <Mail size={18} /> EMAIL ME
           </a>
-          <a href="https://linkedin.com/in/jashan23" target="_blank" className="btn-western">
-            <Linkedin size={18} /> Socials
+          <a href="https://linkedin.com/in/jashan23" target="_blank" className="btn-gold">
+            <Linkedin size={18} /> LINKEDIN
+          </a>
+          <a href="/resume.pdf" download className="btn-gold">
+             <Download size={18} /> RESUME
           </a>
         </div>
-        <p style={{ color: '#555', fontFamily: 'Courier Prime' }}>© 2026 Jashandeep. No rights reserved. Outlaws for life.</p>
+        <p style={{ marginTop: '60px', color: '#444', fontSize: '0.8rem' }}>
+          © 2026 Jashandeep. Designed with React & Framer Motion.
+        </p>
       </footer>
     </div>
   );
