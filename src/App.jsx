@@ -1,135 +1,130 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { 
-  motion, useScroll, useSpring, useTransform, useMotionValue, AnimatePresence 
+  motion, useScroll, useSpring, useTransform, useMotionValue 
 } from "framer-motion";
 import { 
   Download, ExternalLink, Mail, Linkedin, Github, 
-  Cpu, Zap, Globe, Terminal, PlayCircle
+  Code2, Server, Database, Globe, ChevronRight
 } from "lucide-react";
 
 import me from './me.jpg'; 
 
-// --- DATA: RESTORED & ENHANCED ---
+// --- PROFESSIONAL DATA ---
 const education = [
   { 
-    level: "LEVEL 03", 
-    title: "Bachelor of Technology (CSE)", 
-    place: "Lovely Professional University", 
-    stats: "CGPA: 6.8", 
-    year: "2023 - PRESENT",
-    desc: "Specialization in Full Stack Web Development."
+    degree: "B.Tech in Computer Science (Full Stack)", 
+    school: "Lovely Professional University", 
+    year: "2023 - Present",
+    grade: "CGPA: 6.8",
+    details: "Focus on MERN Stack, Data Structures & Algorithms."
   },
   { 
-    level: "LEVEL 02", 
-    title: "Senior Secondary (12th)", 
-    place: "Dr. Asanand Arya Model School", 
-    stats: "Score: 88.6%", 
+    degree: "Senior Secondary (Science)", 
+    school: "Dr. Asanand Arya Model School", 
     year: "2022",
-    desc: "Focus on Physics, Chemistry, and Mathematics."
+    grade: "88.6%",
+    details: "Physics, Chemistry, Mathematics."
   },
   { 
-    level: "LEVEL 01", 
-    title: "Matriculation (10th)", 
-    place: "St. Joseph's Convent School", 
-    stats: "Score: 83.8%", 
+    degree: "Matriculation", 
+    school: "St. Joseph's Convent School", 
     year: "2021",
-    desc: "Foundation in Computer Science basics."
+    grade: "83.8%",
+    details: "Core Foundation."
   }
 ];
 
 const projects = [
   {
     title: "Vyom Clothing",
-    sub: "E-Commerce Engine",
+    tag: "E-Commerce",
+    desc: "A premium fashion platform featuring secure Stripe payments, real-time cart management, and a minimalist design system.",
     tech: ["React.js", "Commerce.js", "Stripe"],
-    img: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop",
-    link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/"
+    link: "https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/",
+    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800"
   },
   {
     title: "Story Verse",
-    sub: "Archive System",
-    tech: ["MERN Stack", "MongoDB", "JWT"],
-    img: "https://images.unsplash.com/photo-1507842217121-ad0773cf4a0f?q=80&w=1000&auto=format&fit=crop",
-    link: "https://reading-tracker-system1-vkbm.vercel.app/"
+    tag: "Content Management",
+    desc: "A library management system allowing users to track reading progress, write summaries, and manage book collections.",
+    tech: ["MongoDB", "Express", "React", "Node.js"],
+    link: "https://reading-tracker-system1-vkbm.vercel.app/",
+    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=800"
   },
   {
-    title: "Biz-ID Gen",
-    sub: "Identity Fabricator",
-    tech: ["React + Vite", "Canvas API"],
-    img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop",
-    link: "https://business-card-generator-mddw.vercel.app/"
+    title: "Biz-ID Generator",
+    tag: "Utility Tool",
+    desc: "An instant business card generator using Canvas API to create and export professional digital identities with QR codes.",
+    tech: ["React", "Vite", "Canvas API"],
+    link: "https://business-card-generator-mddw.vercel.app/",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&q=80&w=800"
   }
 ];
 
 const skills = [
-  { icon: <Terminal size={20}/>, name: "C / C++ / Java" },
-  { icon: <Globe size={20}/>, name: "React / Vite" },
-  { icon: <Cpu size={20}/>, name: "Node / Mongo" },
-  { icon: <Zap size={20}/>, name: "Tailwind / Motion" }
+  { icon: <Code2 size={24}/>, category: "Languages", list: "Java, C++, JavaScript, Python" },
+  { icon: <Globe size={24}/>, category: "Frontend", list: "React.js, Tailwind, Framer Motion" },
+  { icon: <Server size={24}/>, category: "Backend", list: "Node.js, Express, REST APIs" },
+  { icon: <Database size={24}/>, category: "Database", list: "MongoDB, MySQL" }
 ];
 
-// --- COMPONENT: PHYSICS ROPE LIGHT ---
-const RopeLight = ({ toggleTheme, theme }) => {
+// --- MODERN SWITCH COMPONENT ---
+const ModernSwitch = ({ toggleTheme, theme }) => {
   const [dragging, setDragging] = useState(false);
-  
-  // Motion values for spring physics
   const y = useMotionValue(0);
-  const springY = useSpring(y, { stiffness: 600, damping: 10 });
-  const ropeHeight = useTransform(springY, [0, 300], [0, 300]);
+  const springY = useSpring(y, { stiffness: 400, damping: 20 });
+  const ropeHeight = useTransform(springY, [0, 200], [0, 200]);
 
   const handleDragEnd = (_, info) => {
     setDragging(false);
-    if (info.offset.y > 100) {
-      toggleTheme(); // Trigger theme switch
+    if (info.offset.y > 80) {
+      toggleTheme();
     }
-    y.set(0); // Snap back
+    y.set(0); 
   };
 
   return (
     <div className="rope-container">
-      {/* The Rope SVG - Always Visible */}
-      <svg width="40" height="400" style={{ position: 'absolute', top: 0, overflow:'visible', pointerEvents:'none' }}>
+      {/* sleek wire */}
+      <svg width="20" height="300" style={{ position: 'absolute', top: 0, overflow:'visible', pointerEvents:'none' }}>
          <motion.line 
-           x1="20" y1="0" 
-           x2="20" y2={ropeHeight} 
-           stroke={theme === 'dark' ? '#555' : '#333'} 
-           strokeWidth="4" 
-           style={{ translateY: 0 }} // Start slightly off screen
+           x1="10" y1="0" 
+           x2="10" y2={ropeHeight} 
+           stroke="var(--rope-color)" 
+           strokeWidth="2" 
          />
       </svg>
 
-      {/* The Handle / Bulb */}
+      {/* modern capsule handle */}
       <motion.div
         drag="y"
-        dragConstraints={{ top: 0, bottom: 200 }}
-        dragElastic={0.2}
+        dragConstraints={{ top: 0, bottom: 150 }}
+        dragElastic={0.1}
         onDragStart={() => setDragging(true)}
         onDragEnd={handleDragEnd}
         style={{ 
           y: springY, 
-          marginTop: ropeHeight, // Push down by rope length
+          marginTop: ropeHeight, 
           cursor: 'grab',
           zIndex: 1000
         }}
       >
         <div style={{ 
-          width: '30px', height: '50px', 
-          background: theme === 'dark' ? '#222' : '#fff', 
-          border: '3px solid var(--accent)', 
-          borderRadius: '10px 10px 30px 30px',
-          boxShadow: dragging ? '0 0 50px var(--accent)' : '0 0 10px var(--accent)',
-          display: 'flex', justifyContent: 'center', alignItems: 'flex-end', paddingBottom:'5px'
+          width: '12px', height: '40px', 
+          background: theme === 'dark' ? '#334155' : '#e2e8f0', 
+          border: '2px solid var(--text-primary)', 
+          borderRadius: '20px',
+          boxShadow: dragging ? '0 0 20px var(--accent)' : 'none',
+          transition: 'box-shadow 0.3s'
         }}>
-           <div style={{ width: '8px', height: '10px', background: 'var(--accent)', borderRadius: '50%' }}></div>
         </div>
       </motion.div>
     </div>
   );
 };
 
-// --- MAIN APP ---
+// --- APP COMPONENT ---
 function App() {
-  const [start, setStart] = useState(false);
   const [theme, setTheme] = useState("dark");
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
@@ -138,152 +133,134 @@ function App() {
     document.body.className = theme === "dark" ? "" : "light-mode";
   }, [theme]);
 
-  // --- START SCREEN (PRESS ENTER) ---
-  if (!start) {
-    return (
-      <div className="start-screen" onClick={() => setStart(true)}>
-        <motion.h1 
-          animate={{ opacity: [0.5, 1, 0.5] }} 
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="glitch" 
-          data-text="SYSTEM READY"
-          style={{ fontSize: '4rem', color: 'var(--accent)', cursor: 'pointer', fontFamily: 'Orbitron' }}
-        >
-          SYSTEM READY
-        </motion.h1>
-        <p style={{ color: '#fff', fontFamily: 'monospace', marginTop: '20px' }}>
-          [ CLICK TO INITIALIZE INTERFACE ]
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="app">
-      <div className="cyber-grid"></div>
-      <RopeLight theme={theme} toggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} />
+      {/* Backgrounds */}
+      <div className="mesh-background"></div>
+      <ModernSwitch theme={theme} toggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} />
       
-      {/* PROGRESS BAR */}
-      <motion.div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--accent)', scaleX, transformOrigin: "0%", zIndex: 100 }} />
+      {/* Progress Bar */}
+      <motion.div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '3px', background: 'var(--accent)', scaleX, transformOrigin: "0%", zIndex: 100 }} />
 
-      {/* --- HERO: CHARACTER SELECT --- */}
+      {/* 1. HERO SECTION */}
       <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 20px' }}>
-        <div className="container" style={{ maxWidth: '1000px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '50px' }}>
+        <div style={{ maxWidth: '1000px', display: 'flex', flexWrap: 'wrap-reverse', alignItems: 'center', gap: '60px' }}>
           
-          {/* Avatar / Holo-Display */}
           <motion.div 
-             initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-             style={{ flex: '1 1 300px', display: 'flex', justifyContent: 'center' }}
+             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
+             style={{ flex: '1 1 500px' }}
           >
-             <div style={{ position: 'relative', width: '300px', height: '300px' }}>
-               <div style={{ position: 'absolute', inset: 0, border: '2px solid var(--accent)', borderRadius: '50%', borderStyle: 'dashed', animation: 'spin 10s linear infinite' }}></div>
-               <img src={me} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '5px solid var(--bg-color)' }} />
-               <div style={{ position: 'absolute', bottom: -20, left: '50%', transform: 'translateX(-50%)', background: 'var(--accent)', color: '#000', padding: '5px 15px', fontFamily: 'Orbitron', fontWeight: 'bold' }}>
-                  LVL. 23 DEV
-               </div>
+             <div style={{ display: 'inline-block', padding: '6px 12px', background: 'var(--accent-glow)', color: 'var(--accent)', borderRadius: '20px', fontSize: '0.9rem', fontWeight: '600', marginBottom: '20px' }}>
+                Available for Hire
              </div>
-          </motion.div>
-
-          {/* Intro Text */}
-          <motion.div 
-             initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-             style={{ flex: '1 1 400px' }}
-          >
-             <div className="level-badge">CLASS: FULL STACK</div>
-             <h1 className="glitch" data-text="JASHANDEEP" style={{ fontSize: '4rem', margin: '10px 0', lineHeight: 0.9 }}>
-               JASHANDEEP
+             <h1>
+               Creating Digital <br/>
+               Experiences That Matter.
              </h1>
-             <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', fontFamily: 'monospace', marginBottom: '30px' }}>
-               > Initializing portfolio protocol...<br/>
-               > Loading assets: React, Node, Creative Design...<br/>
-               > Status: <span style={{ color: 'var(--accent)' }}>ONLINE</span>
+             <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', margin: '24px 0 40px', lineHeight: 1.6, maxWidth: '500px' }}>
+               Hi, I'm Jashandeep. A Full Stack Developer specializing in building exceptional digital products with modern technologies.
              </p>
              
-             <div style={{ display: 'flex', gap: '15px' }}>
-                <a href="/resume.pdf" download className="hud-panel" style={{ padding: '10px 30px', cursor: 'pointer', textDecoration: 'none', color: 'var(--text-primary)', display:'flex', gap:'10px' }}>
-                   <Download size={18} /> SAVE_DATA (CV)
+             <div style={{ display: 'flex', gap: '16px' }}>
+                <a href="#projects" className="btn-primary">
+                   View Projects <ChevronRight size={18} />
+                </a>
+                <a href="/resume.pdf" download className="btn-outline">
+                   <Download size={18} /> Resume
                 </a>
              </div>
           </motion.div>
+
+          <motion.div 
+             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }}
+             style={{ flex: '1 1 300px', display: 'flex', justifyContent: 'center' }}
+          >
+             <div style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', inset: -4, background: 'linear-gradient(45deg, var(--accent), transparent)', borderRadius: '50%', opacity: 0.5, filter: 'blur(20px)' }}></div>
+                <img src={me} alt="Profile" style={{ width: '280px', height: '280px', borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--card-bg)', position: 'relative' }} />
+             </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* --- SKILLS: ATTRIBUTES --- */}
-      <section style={{ padding: '100px 0' }}>
-         <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            <h2 className="glitch" data-text="ATTRIBUTES" style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '50px', fontFamily: 'Orbitron' }}>ATTRIBUTES</h2>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' }}>
-               {skills.map((s, i) => (
-                  <motion.div 
-                    key={i}
-                    whileHover={{ scale: 1.1, borderColor: 'var(--accent)' }}
-                    className="hud-panel" 
-                    style={{ minWidth: '200px', textAlign: 'center' }}
-                  >
-                     <div style={{ color: 'var(--accent)', marginBottom: '10px' }}>{s.icon}</div>
-                     <div style={{ fontFamily: 'Orbitron', fontSize: '1.1rem' }}>{s.name}</div>
-                  </motion.div>
-               ))}
-            </div>
-         </div>
-      </section>
-
-      {/* --- PROJECTS: QUEST LOG --- */}
-      <section style={{ padding: '100px 0' }}>
-        <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 20px' }}>
-           <h2 className="glitch" data-text="QUEST LOG" style={{ fontSize: '3rem', marginBottom: '50px', fontFamily: 'Orbitron' }}>QUEST LOG</h2>
-           
-           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
-              {projects.map((p, i) => (
-                 <motion.div key={i} whileHover={{ y: -10 }} className="hud-panel" style={{ padding: 0, overflow: 'hidden' }}>
-                    <div style={{ height: '200px', overflow: 'hidden', borderBottom: '1px solid var(--glass-border)' }}>
-                       <img src={p.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                    <div style={{ padding: '20px' }}>
-                       <div className="level-badge" style={{ marginBottom: '10px' }}>COMPLETED</div>
-                       <h3 style={{ fontFamily: 'Orbitron', margin: '0 0 5px 0' }}>{p.title}</h3>
-                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '15px' }}>{p.sub}</p>
-                       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                          {p.tech.map(t => <span key={t} style={{ fontSize: '0.7rem', border: '1px solid #555', padding: '2px 8px' }}>{t}</span>)}
-                       </div>
-                       <a href={p.link} target="_blank" style={{ color: 'var(--accent)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                          LAUNCH <ExternalLink size={14} />
-                       </a>
-                    </div>
-                 </motion.div>
-              ))}
-           </div>
+      {/* 2. SKILLS */}
+      <section style={{ padding: '100px 20px' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <h2 style={{ marginBottom: '50px', textAlign: 'center' }}>Technical Expertise</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px' }}>
+             {skills.map((s, i) => (
+                <motion.div 
+                  key={i} whileHover={{ y: -5 }} 
+                  className="pro-card"
+                  style={{ textAlign: 'center' }}
+                >
+                   <div style={{ color: 'var(--accent)', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>{s.icon}</div>
+                   <h3 style={{ fontSize: '1.1rem', marginBottom: '8px' }}>{s.category}</h3>
+                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{s.list}</p>
+                </motion.div>
+             ))}
+          </div>
         </div>
       </section>
 
-      {/* --- EDUCATION: STORY MODE TIMELINE --- */}
-      <section style={{ padding: '100px 0', position: 'relative' }}>
-         <div className="container" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 20px' }}>
-            <h2 className="glitch" data-text="STORY MODE" style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '80px', fontFamily: 'Orbitron' }}>STORY MODE</h2>
-            
-            <div style={{ position: 'relative', borderLeft: '2px solid var(--glass-border)', paddingLeft: '50px' }}>
+      {/* 3. PROJECTS */}
+      <section id="projects" style={{ padding: '100px 20px' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <h2 style={{ marginBottom: '60px' }}>Featured Work</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '60px' }}>
+             {projects.map((p, i) => (
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="pro-card"
+                  style={{ padding: 0, overflow: 'hidden', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}
+                >
+                   <div style={{ height: '300px', overflow: 'hidden' }}>
+                      <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} />
+                   </div>
+                   <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <span style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '8px' }}>{p.tag}</span>
+                      <h3 style={{ fontSize: '1.8rem', marginBottom: '16px' }}>{p.title}</h3>
+                      <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', lineHeight: 1.6 }}>{p.desc}</p>
+                      
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
+                         {p.tech.map(t => (
+                           <span key={t} style={{ fontSize: '0.8rem', padding: '4px 12px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)' }}>{t}</span>
+                         ))}
+                      </div>
+
+                      <a href={p.link} target="_blank" className="btn-outline" style={{ width: 'fit-content' }}>
+                         Visit Project <ExternalLink size={16} />
+                      </a>
+                   </div>
+                </motion.div>
+             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. EDUCATION */}
+      <section style={{ padding: '100px 20px' }}>
+         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <h2 style={{ marginBottom: '50px', textAlign: 'center' }}>Education History</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                {education.map((edu, i) => (
                   <motion.div 
-                     key={i}
-                     initial={{ opacity: 0, x: -50 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true }}
-                     style={{ marginBottom: '60px', position: 'relative' }}
+                     key={i} 
+                     whileHover={{ x: 10 }}
+                     className="pro-card"
+                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}
                   >
-                     {/* Node Dot */}
-                     <div style={{ position: 'absolute', left: '-59px', top: '0', width: '16px', height: '16px', background: 'var(--accent)', borderRadius: '50%', border: '4px solid var(--bg-color)', boxShadow: '0 0 10px var(--accent)' }}></div>
-                     
-                     <div className="hud-panel">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                           <span style={{ color: 'var(--accent)', fontFamily: 'Orbitron', fontSize: '1.2rem' }}>{edu.level}</span>
-                           <span style={{ fontFamily: 'monospace', opacity: 0.7 }}>{edu.year}</span>
-                        </div>
-                        <h3 style={{ margin: '0 0 5px 0', fontSize: '1.5rem' }}>{edu.title}</h3>
-                        <h4 style={{ margin: '0 0 15px 0', color: 'var(--text-secondary)', fontWeight: 'normal' }}>{edu.place}</h4>
-                        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderLeft: '3px solid var(--accent)' }}>
-                           <div style={{ fontWeight: 'bold' }}>{edu.stats}</div>
-                           <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>{edu.desc}</div>
-                        </div>
+                     <div>
+                        <h3 style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{edu.degree}</h3>
+                        <div style={{ color: 'var(--text-secondary)' }}>{edu.school}</div>
+                        <div style={{ fontSize: '0.9rem', marginTop: '8px', opacity: 0.8 }}>{edu.details}</div>
+                     </div>
+                     <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--accent)' }}>{edu.year}</div>
+                        <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{edu.grade}</div>
                      </div>
                   </motion.div>
                ))}
@@ -291,10 +268,23 @@ function App() {
          </div>
       </section>
 
-      {/* --- FOOTER: SYSTEM END --- */}
-      <footer style={{ borderTop: '1px solid var(--glass-border)', padding: '40px 0', textAlign: 'center', fontFamily: 'monospace', color: '#555' }}>
-         <div style={{ marginBottom: '10px' }}>END OF LINE_</div>
-         <div>DESIGNED BY JASHANDEEP // 2026</div>
+      {/* 5. FOOTER */}
+      <footer style={{ padding: '80px 20px', textAlign: 'center', borderTop: '1px solid var(--card-border)' }}>
+         <h2 style={{ fontSize: '2rem', marginBottom: '24px' }}>Let's work together.</h2>
+         <p style={{ color: 'var(--text-secondary)', marginBottom: '40px' }}>Currently open for full-time opportunities and freelance projects.</p>
+         
+         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+            <a href="mailto:jashandeep20445@gmail.com" className="btn-primary">
+              <Mail size={18} /> Email Me
+            </a>
+            <a href="https://linkedin.com/in/jashan23" target="_blank" className="btn-outline">
+              <Linkedin size={18} /> LinkedIn
+            </a>
+         </div>
+
+         <div style={{ marginTop: '80px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            © 2026 Jashandeep. All rights reserved.
+         </div>
       </footer>
 
     </div>
