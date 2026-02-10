@@ -20,7 +20,7 @@ const Navbar = () => (
       <a href="#about" className="nav-item">About</a>
       <a href="#skills" className="nav-item">Skills</a>
       <a href="#projects" className="nav-item">Projects</a>
-      <a href="#education" className="nav-item">Education</a> {/* ADDED THIS */}
+      <a href="#education" className="nav-item">Education</a>
       <a href="#contact" className="nav-item">Contact</a>
     </div>
   </nav>
@@ -70,7 +70,7 @@ const TiltCard = ({ children, className }) => {
   );
 };
 
-// --- LIQUID TRANSITION ---
+// --- LIQUID TRANSITION (Subtle) ---
 const LiquidTransition = ({ isTransitioning }) => (
   <AnimatePresence>
     {isTransitioning && (
@@ -195,8 +195,16 @@ const Rope = ({ onPull, theme }) => {
     const onMouseDown = (e) => handleStart(e.clientX, e.clientY);
     const onMouseMove = (e) => handleMove(e.clientX, e.clientY);
     const onMouseUp = () => handleEnd();
-    const onTouchStart = (e) => handleStart(e.touches[0].clientX, e.touches[0].clientY);
-    const onTouchMove = (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    
+    // PREVENT DEFAULT ON TOUCH to stop refresh
+    const onTouchStart = (e) => {
+        // e.preventDefault(); // Optional on start
+        handleStart(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    const onTouchMove = (e) => {
+        e.preventDefault(); // STOP PULL TO REFRESH
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    };
     const onTouchEnd = () => handleEnd();
 
     window.addEventListener('mousedown', onMouseDown);
@@ -379,7 +387,6 @@ function App() {
             <div className="project-row">
               <div className="project-visual">
                 <TiltCard>
-                  {/* Updated Image */}
                   <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800" className="project-img" alt="VizCard" />
                 </TiltCard>
               </div>
@@ -413,7 +420,7 @@ function App() {
         </div>
       </section>
 
-      {/* 5. EDUCATION (ADDED ID="education") */}
+      {/* 5. EDUCATION */}
       <section id="education">
         <Reveal><h2>Academic Journey</h2></Reveal>
         <div className="timeline">
