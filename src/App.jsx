@@ -38,33 +38,6 @@ const ThemedButton = ({ href, children, icon: Icon }) => (
   </motion.a>
 );
 
-// --- LIQUID TRANSITION (Water Ripple Effect) ---
-const LiquidTransition = ({ isTransitioning }) => (
-  <AnimatePresence>
-    {isTransitioning && (
-      <>
-        {/* Hidden SVG Filter Definition */}
-        <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-          <filter id="water-ripple">
-            <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="50" />
-          </filter>
-        </svg>
-        
-        <div className="liquid-overlay">
-          <motion.div
-            className="liquid-blob"
-            initial={{ width: 0, height: 0, opacity: 0 }}
-            animate={{ width: "300vmax", height: "300vmax", opacity: 1 }}
-            exit={{ width: "300vmax", height: "300vmax", opacity: 0 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          />
-        </div>
-      </>
-    )}
-  </AnimatePresence>
-);
-
 // --- APPLE-SMOOTH REVEAL ---
 const Reveal = ({ children, delay = 0 }) => (
   <motion.div
@@ -98,18 +71,12 @@ const Rope = ({ onPull, theme }) => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    
-    // Resize handling to keep it full height
-    const resize = () => {
-        canvas.width = 100;
-        canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resize);
-    resize();
+    canvas.width = 100; 
+    canvas.height = window.innerHeight * 0.9; 
     
     // Physics State
     let isDragging = false;
-    let startX = 50; let startY = 0; // Anchor Center
+    let startX = 50; let startY = 0; 
     let endX = 50; let endY = 50;    // Rest position (50px length)
     let velocityX = 0; let velocityY = 0;
 
@@ -117,19 +84,16 @@ const Rope = ({ onPull, theme }) => {
       ctx.clearRect(0,0,canvas.width,canvas.height);
       
       if (!isDragging) {
-        // Elastic Spring Physics (Loose & Bouncy)
-        const k = 0.05; // Low stiffness = easier to pull
+        // Elastic Spring Physics
+        const k = 0.08; 
         const damping = 0.85; 
         
-        // Force to return to rest (x=50, y=50)
         const forceX = (50 - endX) * k;
         const forceY = (50 - endY) * k;
 
         velocityX += forceX;
         velocityY += forceY;
-        
-        // Gravity
-        velocityY += 0.5;
+        velocityY += 0.4; // Gravity
 
         velocityX *= damping;
         velocityY *= damping;
@@ -144,7 +108,7 @@ const Rope = ({ onPull, theme }) => {
       ctx.lineTo(endX, endY);
       
       const color = getComputedStyle(document.documentElement).getPropertyValue('--rope-color').trim();
-      ctx.lineWidth = 4; // Thick visual
+      ctx.lineWidth = 4; 
       ctx.strokeStyle = color;
       ctx.lineCap = 'round';
       ctx.stroke();
@@ -159,14 +123,12 @@ const Rope = ({ onPull, theme }) => {
     };
     animate();
 
-    // Interaction Handlers
     const handleStart = (clientX, clientY) => {
        const rect = canvas.getBoundingClientRect();
        const x = clientX - rect.left;
        const y = clientY - rect.top;
-       
-       // GIANT HITBOX: Grab anywhere in top 200px
-       if (y < 200 && Math.abs(x - 50) < 60) {
+       // GIANT HITBOX (Easy Grab)
+       if (y < 250 && Math.abs(x - 50) < 60) {
           isDragging = true;
           endX = x; endY = y;
        }
@@ -178,8 +140,7 @@ const Rope = ({ onPull, theme }) => {
           endX = clientX - rect.left;
           endY = clientY - rect.top;
           
-          // Trigger pull at 150px (Sensitive but safe)
-          if(endY > 150) {
+          if(endY > 300) {
              onPull();
              isDragging = false; 
           }
@@ -188,12 +149,9 @@ const Rope = ({ onPull, theme }) => {
 
     const handleEnd = () => { isDragging = false; };
 
-    // Mouse
     const onMouseDown = (e) => handleStart(e.clientX, e.clientY);
     const onMouseMove = (e) => handleMove(e.clientX, e.clientY);
     const onMouseUp = () => handleEnd();
-
-    // Touch
     const onTouchStart = (e) => handleStart(e.touches[0].clientX, e.touches[0].clientY);
     const onTouchMove = (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY);
     const onTouchEnd = () => handleEnd();
@@ -201,8 +159,6 @@ const Rope = ({ onPull, theme }) => {
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-    
-    // Attach touch to canvas specifically
     canvas.addEventListener('touchstart', onTouchStart, {passive: false});
     canvas.addEventListener('touchmove', onTouchMove, {passive: false});
     canvas.addEventListener('touchend', onTouchEnd);
@@ -211,7 +167,6 @@ const Rope = ({ onPull, theme }) => {
        window.removeEventListener('mousedown', onMouseDown);
        window.removeEventListener('mousemove', onMouseMove);
        window.removeEventListener('mouseup', onMouseUp);
-       window.removeEventListener('resize', resize);
        canvas.removeEventListener('touchstart', onTouchStart);
        canvas.removeEventListener('touchmove', onTouchMove);
        canvas.removeEventListener('touchend', onTouchEnd);
@@ -221,14 +176,15 @@ const Rope = ({ onPull, theme }) => {
   return <div className="rope-anchor"><canvas ref={canvasRef} style={{width:'100%', height:'100%'}}/></div>
 }
 
+// --- FIXED CURSOR LOGIC ---
 const Cursor = () => {
-  const x=useRef(0); const y=useRef(0);
   useEffect(()=>{
     const dot = document.getElementById('cursor-dot');
     const ring = document.getElementById('cursor-ring');
     const onMove = (e) => {
-        if(dot) dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-        if(ring) ring.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        // FIX: Added 'translate(-50%, -50%)' to center the dot on the cursor
+        if(dot) dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+        if(ring) ring.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
     };
     window.addEventListener('mousemove', onMove);
     return () => window.removeEventListener('mousemove', onMove);
@@ -239,20 +195,9 @@ const Cursor = () => {
 // --- APP ---
 function App() {
   const [theme, setTheme] = useState("noir");
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleSwitch = () => {
-    if (isTransitioning) return; // Prevent double trigger
-    setIsTransitioning(true);
-    
-    // Delay theme switch to match liquid animation
-    setTimeout(() => {
-        setTheme(t => t === 'noir' ? 'frontier' : 'noir');
-    }, 600);
-
-    setTimeout(() => {
-        setIsTransitioning(false);
-    }, 1500);
+    setTheme(t => t === 'noir' ? 'frontier' : 'noir');
   };
 
   useEffect(() => { document.body.setAttribute('data-theme', theme); }, [theme]);
@@ -261,8 +206,6 @@ function App() {
     <div className="app">
       <Cursor />
       <div className="noise-overlay" />
-      <LiquidTransition isTransitioning={isTransitioning} />
-      
       <Navbar />
       <Rope onPull={handleSwitch} theme={theme} />
 
@@ -297,7 +240,7 @@ function App() {
             </p>
             <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', marginTop: '50px' }}>
               <ThemedButton href="/resume.pdf" icon={Download}>Download CV</ThemedButton>
-              <ThemedButton href="#contact" icon={Mail}>Contact Me</ThemedButton>
+            
             </div>
           </div>
         </Reveal>
@@ -386,7 +329,7 @@ function App() {
             </div>
           </Reveal>
 
-          {/* VizCard (Fixed Image) */}
+          {/* VizCard */}
           <Reveal delay={0.3}>
             <div className="project-row">
               <div className="project-visual">
@@ -434,7 +377,7 @@ function App() {
               <p style={{ color:'var(--accent)', fontWeight:'bold' }}>2023 - Present</p>
               <h3>B.Tech Computer Science</h3>
               <p style={{ color:'var(--text-main)', fontWeight:'bold' }}>Lovely Professional University</p>
-              <p style={{ fontSize:'0.9rem' }}>CGPA: 6.8 | Punjab, India</p>
+              <p style={{ fontSize:'0.9rem' }}>CGPA: 7.2 | Punjab, India</p>
             </div>
           </Reveal>
 

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Rye&family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600&display=swap');
 
 :root {
-  /* DARK MODE */
+  /* NOIR THEME */
   --bg-color: #050505;
   --text-main: #f0f0f0;
   --text-muted: #b0b0b0;
@@ -14,13 +14,10 @@
   --btn-grad-1: #d4af37;
   --btn-grad-2: #8a6d1c;
   --btn-text: #000;
-  
-  /* Liquid Transition Color */
-  --liquid-color: rgba(212, 175, 55, 0.3);
 }
 
 [data-theme="frontier"] {
-  /* LIGHT MODE */
+  /* FRONTIER THEME */
   --bg-color: #e6decb; 
   --text-main: #2b1d0e; 
   --text-muted: #5e4b35; 
@@ -33,9 +30,6 @@
   --btn-grad-1: #b91c1c;
   --btn-grad-2: #7f1d1d;
   --btn-text: #fff;
-
-  /* Liquid Transition Color */
-  --liquid-color: rgba(138, 3, 3, 0.3);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; cursor: none; scroll-behavior: smooth; }
@@ -45,24 +39,7 @@ body {
   color: var(--text-main);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
-  transition: background-color 0.5s ease;
-}
-
-/* --- LIQUID TRANSITION OVERLAY --- */
-.liquid-overlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: 9000; pointer-events: none;
-  display: flex; align-items: center; justify-content: center;
-  /* The Magic Filter */
-  filter: url('#water-ripple');
-}
-
-.liquid-blob {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--liquid-color);
-  backdrop-filter: blur(10px); /* Glass effect inside liquid */
-  mix-blend-mode: overlay;
+  transition: background-color 1.0s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* --- CANVAS LAYER --- */
@@ -205,17 +182,16 @@ p { font-size: 1.1rem; line-height: 1.7; color: var(--text-muted); margin-bottom
 
 /* --- ROPE CONTAINER (INFINITE PULL) --- */
 .rope-anchor { 
-  position: fixed; top: 80px; right: 8%; 
-  /* Full height container to allow pulling to bottom */
+  position: fixed; top: 80px; right: 10%; 
   width: 100px; height: 95vh; 
   z-index: 2000; pointer-events: none; 
 }
-/* Ensure mouse events work on the canvas */
 .rope-anchor canvas { pointer-events: auto; cursor: grab; } 
 .rope-anchor canvas:active { cursor: grabbing; }
 
-.cursor-dot { width: 8px; height: 8px; background: var(--accent); position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); }
-.cursor-ring { width: 40px; height: 40px; border: 1px solid var(--accent); opacity: 0.5; position: fixed; border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); transition: width 0.1s, height 0.1s; }
+/* FIXED CURSOR CSS */
+.cursor-dot { width: 8px; height: 8px; background: var(--accent); position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; left: 0; top: 0; }
+.cursor-ring { width: 40px; height: 40px; border: 1px solid var(--accent); opacity: 0.5; position: fixed; border-radius: 50%; pointer-events: none; z-index: 9998; left: 0; top: 0; transition: width 0.1s, height 0.1s; }
 .noise-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 5; background-image: url("https://www.transparenttextures.com/patterns/stardust.png"); opacity: 0.05; mix-blend-mode: overlay; }
 
 /* --- UNIVERSAL RESPONSIVE DESIGN --- */
@@ -226,31 +202,18 @@ p { font-size: 1.1rem; line-height: 1.7; color: var(--text-muted); margin-bottom
   .project-img { height: auto; max-height: 300px; }
   section { padding: 80px 5%; }
   h1 { font-size: 3.5rem; }
-  /* Move rope slightly so it doesn't cover content */
   .rope-anchor { right: 2%; } 
 }
 
 @media (max-width: 768px) {
   .navbar { height: auto; flex-direction: column; padding: 15px; }
   .nav-links { gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
-  .logo { font-size: 1.5rem; }
-  
-  .rope-anchor { top: 100px; right: 5px; width: 80px; } /* Adjust for taller mobile nav */
-  
+  .rope-anchor { top: 100px; right: 5px; width: 80px; } 
   .profile-img { width: 140px; height: 140px; }
   .btn-themed { padding: 12px 30px; font-size: 0.85rem; width: 100%; justify-content: center; }
   .btn-container { width: 100%; margin: 10px 0; }
-  
   .timeline { padding-left: 25px; }
   .timeline-dot { left: -36px; width: 16px; height: 16px; top: 4px; }
-  
   h2 { font-size: 2rem; margin-bottom: 30px; }
-  h3 { font-size: 1.2rem; }
-  p { font-size: 1rem; }
-  
-  .content-wrapper { display: flex; flex-direction: column; }
-  /* On mobile, grid turns to single column stack */
-  .content-wrapper[style*="grid-template-columns"] { 
-    grid-template-columns: 1fr !important; 
-  }
+  .content-wrapper[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
 }
