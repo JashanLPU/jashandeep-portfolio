@@ -20,6 +20,7 @@ const Navbar = () => (
       <a href="#about" className="nav-item">About</a>
       <a href="#skills" className="nav-item">Skills</a>
       <a href="#projects" className="nav-item">Projects</a>
+      <a href="#education" className="nav-item">Education</a> {/* ADDED THIS */}
       <a href="#contact" className="nav-item">Contact</a>
     </div>
   </nav>
@@ -69,7 +70,7 @@ const TiltCard = ({ children, className }) => {
   );
 };
 
-// --- LIQUID TRANSITION (Subtle) ---
+// --- LIQUID TRANSITION ---
 const LiquidTransition = ({ isTransitioning }) => (
   <AnimatePresence>
     {isTransitioning && (
@@ -135,7 +136,7 @@ const Rope = ({ onPull, theme }) => {
     let isDragging = false;
     let startX = 50; let startY = 0; 
     
-    // VISIBLE ROPE: 150px rest length
+    // 150px rest length - VISIBLE
     let endX = 50; let endY = 150; 
     let velocityX = 0; let velocityY = 0;
 
@@ -373,12 +374,12 @@ function App() {
             </div>
           </Reveal>
 
-          {/* VizCard (Fixed Image) */}
+          {/* VizCard */}
           <Reveal>
             <div className="project-row">
               <div className="project-visual">
                 <TiltCard>
-                  {/* Updated Business Card Image */}
+                  {/* Updated Image */}
                   <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800" className="project-img" alt="VizCard" />
                 </TiltCard>
               </div>
@@ -412,8 +413,8 @@ function App() {
         </div>
       </section>
 
-      {/* 5. EDUCATION */}
-      <section>
+      {/* 5. EDUCATION (ADDED ID="education") */}
+      <section id="education">
         <Reveal><h2>Academic Journey</h2></Reveal>
         <div className="timeline">
           
