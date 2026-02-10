@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Sparkles, AdaptiveDpr } from "@react-three/drei";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { Mail, Linkedin, Download, ExternalLink, Terminal, Code, Database, Cpu, Github, MapPin, Phone, Trophy, BookOpen } from "lucide-react";
 import './App.css';
 
@@ -34,21 +34,78 @@ const ThemedButton = ({ href, children, icon: Icon }) => (
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
   >
-    {Icon && <Icon size={20} />} {children}
+    {Icon && <Icon size={16} />} {children}
   </motion.a>
 );
 
-// --- APPLE-SMOOTH REVEAL ---
+// --- 3D TILT CARD ---
+const TiltCard = ({ children, className }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-0.5, 0.5], ["5deg", "-5deg"]);
+  const rotateY = useTransform(x, [-0.5, 0.5], ["-5deg", "5deg"]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    x.set(mouseX / width - 0.5);
+    y.set(mouseY / height - 0.5);
+  };
+
+  const handleMouseLeave = () => { x.set(0); y.set(0); };
+
+  return (
+    <motion.div
+      className={`tilt-card ${className}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY }}
+    >
+      <div className="tilt-content">{children}</div>
+    </motion.div>
+  );
+};
+
+// --- LIQUID TRANSITION (Subtle) ---
+const LiquidTransition = ({ isTransitioning }) => (
+  <AnimatePresence>
+    {isTransitioning && (
+      <>
+        <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+          <filter id="water-ripple">
+            <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" />
+          </filter>
+        </svg>
+        <div className="liquid-overlay">
+          <motion.div
+            className="liquid-blob"
+            initial={{ width: 0, height: 0, opacity: 0 }}
+            animate={{ width: "200vmax", height: "200vmax", opacity: 1 }}
+            exit={{ width: "200vmax", height: "200vmax", opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+          />
+        </div>
+      </>
+    )}
+  </AnimatePresence>
+);
+
+// --- ULTRA SMOOTH REVEAL ---
 const Reveal = ({ children, delay = 0 }) => (
   <motion.div
-    initial={{ opacity: 0, y: 40 }}
+    initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -20 }}
     viewport={{ once: false, amount: 0.1 }}
     transition={{ 
-      duration: 1.0, 
-      delay, 
-      ease: [0.25, 0.1, 0.25, 1]
+      type: "spring",
+      stiffness: 40,  
+      damping: 15,    
+      delay: delay
     }}
   >
     {children}
@@ -58,66 +115,55 @@ const Reveal = ({ children, delay = 0 }) => (
 const FloatAnim = ({ children, delay = 0 }) => (
   <motion.div
     animate={{ y: [0, -10, 0] }}
-    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay }}
+    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay }}
   >
     {children}
   </motion.div>
 );
 
-// --- INFINITE ELASTIC ROPE (50px Visual, Infinite Pull) ---
+// --- VISIBLE INFINITE ROPE ---
 const Rope = ({ onPull, theme }) => {
   const canvasRef = useRef(null);
   
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    canvas.width = 100; 
-    canvas.height = window.innerHeight * 0.9; 
+    const resize = () => { canvas.width = 100; canvas.height = window.innerHeight; };
+    window.addEventListener('resize', resize);
+    resize();
     
-    // Physics State
     let isDragging = false;
     let startX = 50; let startY = 0; 
-    let endX = 50; let endY = 50;    // Rest position (50px length)
+    
+    // VISIBLE ROPE: 150px rest length
+    let endX = 50; let endY = 150; 
     let velocityX = 0; let velocityY = 0;
 
     const animate = () => {
       ctx.clearRect(0,0,canvas.width,canvas.height);
       
       if (!isDragging) {
-        // Elastic Spring Physics
-        const k = 0.08; 
-        const damping = 0.85; 
+        const k = 0.05; 
+        const damping = 0.88; 
         
         const forceX = (50 - endX) * k;
-        const forceY = (50 - endY) * k;
-
-        velocityX += forceX;
-        velocityY += forceY;
-        velocityY += 0.4; // Gravity
-
-        velocityX *= damping;
-        velocityY *= damping;
-
-        endX += velocityX;
-        endY += velocityY;
+        const forceY = (150 - endY) * k;
+        velocityX += forceX; velocityY += forceY;
+        velocityY += 0.4; 
+        velocityX *= damping; velocityY *= damping;
+        endX += velocityX; endY += velocityY;
       }
 
-      // Draw Rope
       ctx.beginPath();
       ctx.moveTo(startX, startY);
       ctx.lineTo(endX, endY);
       
       const color = getComputedStyle(document.documentElement).getPropertyValue('--rope-color').trim();
-      ctx.lineWidth = 4; 
-      ctx.strokeStyle = color;
-      ctx.lineCap = 'round';
-      ctx.stroke();
+      ctx.lineWidth = 3; ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.stroke();
       
-      // Draw Knob
       ctx.beginPath();
-      ctx.arc(endX, endY, 8, 0, Math.PI*2);
-      ctx.fillStyle = color;
-      ctx.fill();
+      ctx.arc(endX, endY, 6, 0, Math.PI*2);
+      ctx.fillStyle = color; ctx.fill();
       
       requestAnimationFrame(animate);
     };
@@ -127,8 +173,8 @@ const Rope = ({ onPull, theme }) => {
        const rect = canvas.getBoundingClientRect();
        const x = clientX - rect.left;
        const y = clientY - rect.top;
-       // GIANT HITBOX (Easy Grab)
-       if (y < 250 && Math.abs(x - 50) < 60) {
+       // HITBOX
+       if (y < 300) {
           isDragging = true;
           endX = x; endY = y;
        }
@@ -139,11 +185,7 @@ const Rope = ({ onPull, theme }) => {
           const rect = canvas.getBoundingClientRect();
           endX = clientX - rect.left;
           endY = clientY - rect.top;
-          
-          if(endY > 300) {
-             onPull();
-             isDragging = false; 
-          }
+          if(endY > 350) { onPull(); isDragging = false; }
        }
     };
 
@@ -176,13 +218,12 @@ const Rope = ({ onPull, theme }) => {
   return <div className="rope-anchor"><canvas ref={canvasRef} style={{width:'100%', height:'100%'}}/></div>
 }
 
-// --- FIXED CURSOR LOGIC ---
 const Cursor = () => {
+  const x=useRef(0); const y=useRef(0);
   useEffect(()=>{
     const dot = document.getElementById('cursor-dot');
     const ring = document.getElementById('cursor-ring');
     const onMove = (e) => {
-        // FIX: Added 'translate(-50%, -50%)' to center the dot on the cursor
         if(dot) dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
         if(ring) ring.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
     };
@@ -195,9 +236,13 @@ const Cursor = () => {
 // --- APP ---
 function App() {
   const [theme, setTheme] = useState("noir");
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleSwitch = () => {
-    setTheme(t => t === 'noir' ? 'frontier' : 'noir');
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => { setTheme(t => t === 'noir' ? 'frontier' : 'noir'); }, 600);
+    setTimeout(() => { setIsTransitioning(false); }, 1300);
   };
 
   useEffect(() => { document.body.setAttribute('data-theme', theme); }, [theme]);
@@ -205,7 +250,9 @@ function App() {
   return (
     <div className="app">
       <Cursor />
+      <div className="vignette-overlay" />
       <div className="noise-overlay" />
+      <LiquidTransition isTransitioning={isTransitioning} />
       <Navbar />
       <Rope onPull={handleSwitch} theme={theme} />
 
@@ -214,9 +261,10 @@ function App() {
           <Suspense fallback={null}>
             <AdaptiveDpr pixelated />
             <Sparkles 
-              count={800} scale={20} size={2} 
-              speed={0.4} opacity={0.5} 
-              color={theme === 'noir' ? "#d4af37" : "#8a0303"} 
+              count={theme === 'noir' ? 1000 : 600} 
+              scale={25} size={theme === 'noir' ? 2 : 4} 
+              speed={0.4} opacity={0.6} 
+              color={theme === 'noir' ? "#d4af37" : "#b8860b"} 
             />
           </Suspense>
         </Canvas>
@@ -230,7 +278,7 @@ function App() {
               <img src={me} className="profile-img" alt="Jashandeep Singh" />
             </FloatAnim>
             <h1>Jashandeep Singh</h1>
-            <p style={{ color: 'var(--accent)', fontWeight: 'bold', letterSpacing: '4px', fontSize: '1.4rem', marginBottom:'30px' }}>
+            <p style={{ color: 'var(--accent)', fontFamily: 'Cinzel', fontWeight: 'bold', letterSpacing: '4px', fontSize: '1.2rem', marginBottom:'30px' }}>
               FULL STACK ENGINEER
             </p>
             <p style={{maxWidth: '800px', margin: '0 auto'}}>
@@ -240,7 +288,7 @@ function App() {
             </p>
             <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', marginTop: '50px' }}>
               <ThemedButton href="/resume.pdf" icon={Download}>Download CV</ThemedButton>
-            
+              <ThemedButton href="#contact" icon={Mail}>Contact Me</ThemedButton>
             </div>
           </div>
         </Reveal>
@@ -249,35 +297,27 @@ function App() {
       {/* 2. SKILLS */}
       <section id="skills">
         <Reveal><h2>Technical Skills</h2></Reveal>
-        <div className="content-wrapper" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '40px' }}>
+        <div className="content-wrapper" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px' }}>
           
-          <Reveal delay={0.1}>
-            <div style={{ padding:'30px', borderLeft: '2px solid var(--accent)', background: 'rgba(255,255,255,0.02)' }}>
-              <h3 style={{ display:'flex', gap:'10px' }}><Terminal/> Languages</h3>
-              <p>C, C++, Java, Python, PHP</p>
-            </div>
-          </Reveal>
+          <TiltCard className="skills-card">
+            <h3 style={{ display:'flex', gap:'10px' }}><Terminal/> Languages</h3>
+            <p>C, C++, Java, Python, PHP</p>
+          </TiltCard>
           
-          <Reveal delay={0.2}>
-            <div style={{ padding:'30px', borderLeft: '2px solid var(--accent)', background: 'rgba(255,255,255,0.02)' }}>
-              <h3 style={{ display:'flex', gap:'10px' }}><Code/> Frontend</h3>
-              <p>HTML, CSS, React.js, Tailwind, Framer Motion</p>
-            </div>
-          </Reveal>
+          <TiltCard className="skills-card">
+            <h3 style={{ display:'flex', gap:'10px' }}><Code/> Frontend</h3>
+            <p>HTML, CSS, React.js, Tailwind, Framer Motion</p>
+          </TiltCard>
 
-          <Reveal delay={0.3}>
-            <div style={{ padding:'30px', borderLeft: '2px solid var(--accent)', background: 'rgba(255,255,255,0.02)' }}>
-              <h3 style={{ display:'flex', gap:'10px' }}><Cpu/> Backend</h3>
-              <p>Node.js, Express.js, PHP (XAMPP)</p>
-            </div>
-          </Reveal>
+          <TiltCard className="skills-card">
+            <h3 style={{ display:'flex', gap:'10px' }}><Cpu/> Backend</h3>
+            <p>Node.js, Express.js, PHP (XAMPP)</p>
+          </TiltCard>
 
-          <Reveal delay={0.4}>
-            <div style={{ padding:'30px', borderLeft: '2px solid var(--accent)', background: 'rgba(255,255,255,0.02)' }}>
-              <h3 style={{ display:'flex', gap:'10px' }}><Database/> Tools</h3>
-              <p>MySQL, MongoDB, GitHub, VS Code</p>
-            </div>
-          </Reveal>
+          <TiltCard className="skills-card">
+            <h3 style={{ display:'flex', gap:'10px' }}><Database/> Tools</h3>
+            <p>MySQL, MongoDB, GitHub, VS Code</p>
+          </TiltCard>
 
         </div>
       </section>
@@ -288,10 +328,12 @@ function App() {
         <div className="content-wrapper">
           
           {/* Vyom */}
-          <Reveal delay={0.1}>
+          <Reveal>
             <div className="project-row">
               <div className="project-visual">
-                <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" className="project-img" alt="Vyom" />
+                <TiltCard>
+                  <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" className="project-img" alt="Vyom" />
+                </TiltCard>
               </div>
               <div className="project-info">
                 <h3>Vyom Clothing</h3>
@@ -309,10 +351,12 @@ function App() {
           </Reveal>
 
           {/* Story Verse */}
-          <Reveal delay={0.2}>
+          <Reveal>
             <div className="project-row" style={{flexDirection: 'row-reverse'}}>
               <div className="project-visual">
-                <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800" className="project-img" alt="Story Verse" />
+                <TiltCard>
+                  <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800" className="project-img" alt="Story Verse" />
+                </TiltCard>
               </div>
               <div className="project-info" style={{textAlign: 'right'}}>
                 <h3>Story Verse</h3>
@@ -329,12 +373,14 @@ function App() {
             </div>
           </Reveal>
 
-          {/* VizCard */}
-          <Reveal delay={0.3}>
+          {/* VizCard (Fixed Image) */}
+          <Reveal>
             <div className="project-row">
               <div className="project-visual">
-                {/* Tech Card Image */}
-                <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=800" className="project-img" alt="VizCard" />
+                <TiltCard>
+                  {/* Updated Business Card Image */}
+                  <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800" className="project-img" alt="VizCard" />
+                </TiltCard>
               </div>
               <div className="project-info">
                 <h3>VizCard</h3>
@@ -355,7 +401,7 @@ function App() {
       </section>
 
       {/* 4. CERTIFICATES */}
-      <section id="certs" style={{ width: '100%', padding: '100px 0' }}>
+      <section id="certs" style={{ width: '100%', padding: '120px 0' }}>
         <Reveal><h2>Certifications</h2></Reveal>
         <div className="marquee-wrapper">
           <div className="marquee-track">
@@ -371,30 +417,30 @@ function App() {
         <Reveal><h2>Academic Journey</h2></Reveal>
         <div className="timeline">
           
-          <Reveal delay={0.1}>
+          <Reveal>
             <div className="timeline-item">
               <div className="timeline-dot"></div>
               <p style={{ color:'var(--accent)', fontWeight:'bold' }}>2023 - Present</p>
               <h3>B.Tech Computer Science</h3>
               <p style={{ color:'var(--text-main)', fontWeight:'bold' }}>Lovely Professional University</p>
-              <p style={{ fontSize:'0.9rem' }}>CGPA: 7.2 | Punjab, India</p>
+              <p style={{ fontSize:'0.9rem' }}>CGPA: 6.8 | Punjab, India</p>
             </div>
           </Reveal>
 
-          <Reveal delay={0.2}>
+          <Reveal>
             <div className="timeline-item">
               <div className="timeline-dot"></div>
-              <p style={{ color:'var(--accent)', fontWeight:'bold' }}>2022</p>
+              <p style={{ color:'var(--accent)', fontWeight:'bold' }}>2022 - 2023</p>
               <h3>Intermediate (12th)</h3>
               <p style={{ color:'var(--text-main)', fontWeight:'bold' }}>Dr. Asanand Arya Model School</p>
               <p style={{ fontSize:'0.9rem' }}>Percentage: 88.6% | Punjab, India</p>
             </div>
           </Reveal>
 
-          <Reveal delay={0.3}>
+          <Reveal>
             <div className="timeline-item">
               <div className="timeline-dot"></div>
-              <p style={{ color:'var(--accent)', fontWeight:'bold' }}>2021</p>
+              <p style={{ color:'var(--accent)', fontWeight:'bold' }}>2020 - 2021</p>
               <h3>Matriculation (10th)</h3>
               <p style={{ color:'var(--text-main)', fontWeight:'bold' }}>St. Joseph's Convent School</p>
               <p style={{ fontSize:'0.9rem' }}>Percentage: 83.8% | Punjab, India</p>
