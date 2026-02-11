@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-mo
 import { Mail, Linkedin, Download, ExternalLink, Terminal, Code, Database, Cpu, Github, MapPin, Phone, Trophy, BookOpen } from "lucide-react";
 import './App.css';
 
-// Assets
+// Assets (Ensure these exist in your src folder or update paths)
 import me from './me.jpg'; 
 import cert1 from './cert1.jpg'; 
 import cert2 from './cert2.jpg'; 
@@ -95,7 +95,7 @@ const LiquidTransition = ({ isTransitioning }) => (
   </AnimatePresence>
 );
 
-// --- ULTRA SMOOTH REVEAL ---
+// --- ULTRA SMOOTH REVEAL (Spring Physics) ---
 const Reveal = ({ children, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
@@ -122,33 +122,48 @@ const FloatAnim = ({ children, delay = 0 }) => (
   </motion.div>
 );
 
-// --- VISIBLE INFINITE ROPE ---
+// --- VISIBLE INFINITE ROPE (Mobile Pull Fix) ---
 const Rope = ({ onPull, theme }) => {
   const canvasRef = useRef(null);
   
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const resize = () => { canvas.width = 100; canvas.height = window.innerHeight; };
+    
+    // Initial Size
+    let width = 100;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    const resize = () => { 
+        width = 100;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+    };
     window.addEventListener('resize', resize);
-    resize();
     
     let isDragging = false;
     let startX = 50; let startY = 0; 
     
-    // 150px rest length - VISIBLE
-    let endX = 50; let endY = 150; 
+    // DYNAMIC LENGTH LOGIC
+    // Desktop = 150px. Mobile (<768px) = 300px to clear navbar.
+    const getRestLength = () => window.innerWidth < 768 ? 300 : 150;
+    
+    let endX = 50; let endY = getRestLength(); 
     let velocityX = 0; let velocityY = 0;
 
     const animate = () => {
       ctx.clearRect(0,0,canvas.width,canvas.height);
+      const restLength = getRestLength();
       
       if (!isDragging) {
         const k = 0.05; 
         const damping = 0.88; 
         
         const forceX = (50 - endX) * k;
-        const forceY = (150 - endY) * k;
+        const forceY = (restLength - endY) * k; // Pull to dynamic rest length
         velocityX += forceX; velocityY += forceY;
         velocityY += 0.4; 
         velocityX *= damping; velocityY *= damping;
@@ -174,8 +189,8 @@ const Rope = ({ onPull, theme }) => {
        const rect = canvas.getBoundingClientRect();
        const x = clientX - rect.left;
        const y = clientY - rect.top;
-       // HITBOX
-       if (y < 300) {
+       // HITBOX: Upper 400px to account for mobile length
+       if (y < 400) {
           isDragging = true;
           endX = x; endY = y;
        }
@@ -186,7 +201,9 @@ const Rope = ({ onPull, theme }) => {
           const rect = canvas.getBoundingClientRect();
           endX = clientX - rect.left;
           endY = clientY - rect.top;
-          if(endY > 350) { onPull(); isDragging = false; }
+          if(endY > (window.innerWidth < 768 ? 450 : 350)) { 
+             onPull(); isDragging = false; 
+          }
        }
     };
 
@@ -196,9 +213,8 @@ const Rope = ({ onPull, theme }) => {
     const onMouseMove = (e) => handleMove(e.clientX, e.clientY);
     const onMouseUp = () => handleEnd();
     
-    // PREVENT DEFAULT ON TOUCH to stop refresh
+    // PREVENT DEFAULT ON TOUCH to stop refresh/scroll
     const onTouchStart = (e) => {
-        // e.preventDefault(); // Optional on start
         handleStart(e.touches[0].clientX, e.touches[0].clientY);
     };
     const onTouchMove = (e) => {
@@ -218,6 +234,7 @@ const Rope = ({ onPull, theme }) => {
        window.removeEventListener('mousedown', onMouseDown);
        window.removeEventListener('mousemove', onMouseMove);
        window.removeEventListener('mouseup', onMouseUp);
+       window.removeEventListener('resize', resize);
        canvas.removeEventListener('touchstart', onTouchStart);
        canvas.removeEventListener('touchmove', onTouchMove);
        canvas.removeEventListener('touchend', onTouchEnd);
@@ -331,7 +348,7 @@ function App() {
         </div>
       </section>
 
-      {/* 3. PROJECTS */}
+      {/* 3. PROJECTS (UPDATED LINKS) */}
       <section id="projects">
         <Reveal><h2>Featured Projects</h2></Reveal>
         <div className="content-wrapper">
@@ -354,7 +371,8 @@ function App() {
                 <div style={{marginBottom:'25px'}}>
                   <span className="tech-badge">React</span><span className="tech-badge">Stripe</span><span className="tech-badge">Commerce.js</span>
                 </div>
-                <ThemedButton href="https://vyom-clothing-system-qrdb-fhzonb1k3-jashabdeeps-projects.vercel.app/" icon={ExternalLink}>Visit Store</ThemedButton>
+                {/* CLEAN LINK */}
+                <ThemedButton href="https://vyom-clothing-system.vercel.app/" icon={ExternalLink}>Visit Store</ThemedButton>
               </div>
             </div>
           </Reveal>
@@ -377,7 +395,8 @@ function App() {
                 <div style={{marginBottom:'25px'}}>
                   <span className="tech-badge">MERN Stack</span><span className="tech-badge">Node.js</span><span className="tech-badge">MongoDB</span>
                 </div>
-                <ThemedButton href="https://reading-tracker-system1-vkbm.vercel.app/" icon={ExternalLink}>Enter Library</ThemedButton>
+                {/* CLEAN LINK */}
+                <ThemedButton href="https://reading-tracker-system.vercel.app/" icon={ExternalLink}>Enter Library</ThemedButton>
               </div>
             </div>
           </Reveal>
@@ -387,6 +406,7 @@ function App() {
             <div className="project-row">
               <div className="project-visual">
                 <TiltCard>
+                  {/* Business Card Image */}
                   <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800" className="project-img" alt="VizCard" />
                 </TiltCard>
               </div>
@@ -400,7 +420,8 @@ function App() {
                 <div style={{marginBottom:'25px'}}>
                   <span className="tech-badge">Canvas API</span><span className="tech-badge">React</span><span className="tech-badge">Vite</span>
                 </div>
-                <ThemedButton href="https://business-card-generator-mddw.vercel.app/" icon={ExternalLink}>Create Card</ThemedButton>
+                {/* CLEAN LINK */}
+                <ThemedButton href="https://business-card-generator.vercel.app/" icon={ExternalLink}>Create Card</ThemedButton>
               </div>
             </div>
           </Reveal>
