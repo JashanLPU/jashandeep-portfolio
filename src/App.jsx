@@ -372,7 +372,7 @@ function App() {
                   <span className="tech-badge">React</span><span className="tech-badge">Stripe</span><span className="tech-badge">Commerce.js</span>
                 </div>
                 {/* CLEAN LINK */}
-                <ThemedButton href="https://vyom-clothing-system.vercel.app/" icon={ExternalLink}>Visit Store</ThemedButton>
+                <ThemedButton href="https://vyom-clothing-system-qrdb.vercel.app/" icon={ExternalLink}>Visit Store</ThemedButton>
               </div>
             </div>
           </Reveal>
@@ -396,7 +396,7 @@ function App() {
                   <span className="tech-badge">MERN Stack</span><span className="tech-badge">Node.js</span><span className="tech-badge">MongoDB</span>
                 </div>
                 {/* CLEAN LINK */}
-                <ThemedButton href="https://reading-tracker-system.vercel.app/" icon={ExternalLink}>Enter Library</ThemedButton>
+                <ThemedButton href="https://reading-tracker-system1-vkbm.vercel.app/" icon={ExternalLink}>Enter Library</ThemedButton>
               </div>
             </div>
           </Reveal>
@@ -421,7 +421,7 @@ function App() {
                   <span className="tech-badge">Canvas API</span><span className="tech-badge">React</span><span className="tech-badge">Vite</span>
                 </div>
                 {/* CLEAN LINK */}
-                <ThemedButton href="https://business-card-generator.vercel.app/" icon={ExternalLink}>Create Card</ThemedButton>
+                <ThemedButton href="https://business-card-generator-mddw.vercel.app/" icon={ExternalLink}>Create Card</ThemedButton>
               </div>
             </div>
           </Reveal>
